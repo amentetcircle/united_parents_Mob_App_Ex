@@ -1,19 +1,21 @@
 // Import the functions you need from the SDKs you need
-import {initializeApp} from "firebase/app";
-import {getAuth} from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDPfu5SZdGj7ReQ2UbO2xyR4EgoJX6S8H4",
-    authDomain: "united-parents.firebaseapp.com",
-    databaseURL: "https://united-parents-default-rtdb.europe-west1.firebasedatabase.app/",
-    projectId: "united-parents",
-    storageBucket: "united-parents.appspot.com",
-    messagingSenderId: "214299041255",
-    appId: "1:214299041255:web:dd761d9b9c85e8214d7142"
+    apiKey: "AIzaSyDMz9EG3to0JqhBlajH8n1aJ2afaUJn-28",
+    authDomain: "mobappex-group3.firebaseapp.com",
+    databaseURL: "https://mobappex-group3-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mobappex-group3",
+    storageBucket: "mobappex-group3.appspot.com",
+    messagingSenderId: "260127703464",
+    appId: "1:260127703464:web:6736f73910241352f75d9d"
 };
+
 
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
-export const database = getDatabase(app)
+export const database = getDatabase(app);
+
 export default app
