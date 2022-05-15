@@ -1,10 +1,50 @@
 import React from "react";
-import Data from "bootstrap/js/src/dom/data";
+
+function CreateChat() {
+    return (
+        <div id="specific-chat" className="chat-box">
+            <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200"></img>
+            <p className="person-name">Name of the person</p>
+            <div className="line"></div>
+            <div className="placeholder-chat"></div>
+            <button onClick={()=>receiverMessage("Message is much muhc longer")}>Receiver</button>
+            <button onClick={()=>senderMessage("Message is much muhc longer")}>Sender</button>
+        </div>
+    );
+}
+
+function receiverMessage(messageText) {
+    const tag = document.createElement("div");
+    tag.className = "receiver";
+
+    const message = document.createElement("p");
+    message.textContent = messageText;
+    message.className = "user-name";
+
+    const element = document.getElementById("specific-chat");
+    tag.appendChild(message);
+    element.appendChild(tag);
+}
+
+
+function senderMessage(messageText) {
+    const tag = document.createElement("div");
+    tag.className = "sender";
+
+    const message = document.createElement("p");
+    message.textContent = messageText;
+    message.className = "user-name";
+
+    const element = document.getElementById("specific-chat");
+    tag.appendChild(message);
+    element.appendChild(tag);
+}
 
 class Chats extends React.Component {
     constructor(props) {
         super(props);
     }
+
 
     render() {
         return (
@@ -23,4 +63,5 @@ class Chats extends React.Component {
     }
 }
 
-export default Chats;
+
+export default CreateChat;
