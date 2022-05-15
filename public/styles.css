@@ -203,6 +203,15 @@ a.forgot-password { font-size: 15px; }
   box-shadow: 0 2px 4px #cccccc;
 }
 
+.content-box-in-box {
+  width: 100%;
+  padding: 40px;
+  background-color: #fdfdfc;
+  border-radius: 8px;
+  border: solid #4d4d4d 1px;
+  box-shadow: 0 2px 4px #cccccc;
+}
+
 /* ---------- Home Content ---------- */
 .home { text-align: center; }
 .home p {
@@ -243,6 +252,38 @@ a.forgot-password { font-size: 15px; }
   margin-left: 36px;
   margin-top: 16px;
 }
+
+/* ---------- Chat ---------- */
+.round-image {
+  margin-right: 20px;
+  position: inherit;
+  float: left;
+  height: 90px;
+  width: 90px;
+  border: solid 3px #cccccc;
+  border-radius: 50%;
+}
+
+.user-name {
+  position: inherit;
+  float: inherit;
+  left: 20px;
+  font-weight: bold;
+}
+
+.last-message {
+  position: inherit;
+  font-size: medium;
+  float: inherit;
+  left: 20px;
+}
+
+.time-date {
+  position: inherit;
+  margin: -15px;
+  font-size: medium;
+}
+
 
 
 /* ---------- Search User Content ---------- */
@@ -318,7 +359,7 @@ input[type=number]::-webkit-outer-spin-button {
   box-shadow: 0 4px 8px 0 #cccccc;
 }
 
-.zip-result-card h1 { font-size: 2vw; }
+.zip-result-card w { font-size: 2vw; }
 .zip-result-card p { font-size: 1.5vw; }
 
 .circle-img {

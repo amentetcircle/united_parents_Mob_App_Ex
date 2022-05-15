@@ -12,6 +12,7 @@ import Settings from "../pages/Settings";
 import ProtectedRoutes from "./ProtectedRoutes";
 import Registration from "../pages/Registration";
 import SidebarLogReg from "./SidebarLogReg";
+import ChatsList from "../pages/ChatList";
 
 function App() {
     return (
@@ -30,7 +31,7 @@ function App() {
                             element={<ProtectedRoutes> <SearchUser/> </ProtectedRoutes>}/>
                         <Route
                             path="/chats"
-                            element={<ProtectedRoutes > <Chats/> </ProtectedRoutes>}/>
+                            element={<ProtectedRoutes > <ChatsList/> </ProtectedRoutes>}/>
                         <Route
                             path="/help-finances"
                             element={<ProtectedRoutes > <Help/> </ProtectedRoutes>}/>

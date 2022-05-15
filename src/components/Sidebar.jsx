@@ -29,7 +29,7 @@ function Sidebar() {
     </div>
 
     <div class="icons-container">
-      <a href="chats">
+      <a href="ChatList">
         <span class="material-icons">forum</span>
         <p>Chats</p>
       </a>
