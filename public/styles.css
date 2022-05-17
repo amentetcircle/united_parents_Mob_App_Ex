@@ -21,6 +21,7 @@ header {
   border: 0;
   border-radius: 0 0 8px 0; /* top-left | top-right | bottom-right | bottom-left */
   box-shadow: 2px 0 2px #999999; /* offset-x | offset-y | blur-radius | color */
+  z-index: 1;
 }
 
 /* Font Style of the header title */
@@ -245,6 +246,7 @@ a.forgot-password { font-size: 15px; }
 }
 
 /* ---------- Chat ---------- */
+/* Kann sehr wahrscheinlich weg*/
 .content-box-in-box {
   width: 100%;
   padding: 40px;
@@ -255,16 +257,16 @@ a.forgot-password { font-size: 15px; }
 }
 
 .chat-box {
-  position: relative;
   width: 75vw;
   height: fit-content;
-  min-height: 75vw;
+  min-height: 30vw;
   padding: 16px;
   margin-bottom: 40px;
   background-color: #fdfdfc;
   border-radius: 8px;
   border: solid #489FB5 2px;
   box-shadow: 0 2px 4px #cccccc;
+  z-index: 0;
 }
 
 .round-image {
@@ -277,65 +279,77 @@ a.forgot-password { font-size: 15px; }
   border-radius: 50%;
 }
 
-.round-image-for-specific-chat {
-  position: relative;
-  left: 30%;
-  float: left;
-  height: 90px;
-  width: 90px;
-  border: solid 3px #cccccc;
-  border-radius: 50%;
-}
-
-.placeholder-chat {
-  height: 60px;
-}
-
-.placekeeper {
-  width: fit-content;
+.chat-box-heading {
+  position: sticky;
+  top: 20%;
+  width: 75vw;
   height: fit-content;
   padding: 16px;
-  margin-bottom: 40px;
-  color: #ffffff;
-}
-
-.receiver {
-  width: fit-content;
-  height: fit-content;
-  padding: 16px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   background-color: #fdfdfc;
   border-radius: 8px;
   border: solid #489FB5 2px;
   box-shadow: 0 2px 4px #cccccc;
 }
 
-.sender {
+.floating-heading {
+  position: sticky;
+  margin-bottom: 20px;
+  top: 55px;
+  padding: 30px;
+  background: #82C0CC;
+  border-radius: 8px;
+  border: solid #000000 2px;
+}
+
+.chat-heading {
+  text-align: center;
+}
+
+.image-holder {
+  alignment: center;
+  height: fit-content;
+}
+
+.round-image-for-specific-chat {
+  margin-right: auto;
+  height: 90px;
+  width: 90px;
+  border: solid 3px #cccccc;
+  border-radius: 50%;
+}
+
+.picture-right {
   position: relative;
-  float: right;
+  float: left;
+}
+
+.message-text {
   width: fit-content;
   height: fit-content;
-  background: #82C0CC;
+}
+
+.message {
+  width: fit-content;
+  background: #cccccc;
+  max-width: 80%;
+  height: fit-content;
   padding: 16px;
-  margin-bottom: 40px;
-  border-radius: 8px;
-  border: solid #489FB5 2px;
+  margin-bottom: 20px;
+  margin-left: 15px;
+  border-radius: 40px 8px 40px 8px;
+  border: solid #000000 2px;
   box-shadow: 0 2px 4px #cccccc;
 }
 
-.line {
-  position: relative;
-  background: #1a1a1a;
-  height: 1px;
-  width: 100%;
-  top: 60px;
+.sender {
+  margin-left: auto;
+  margin-right: 15px;
+  border-radius: 8px 40px 8px 40px;
+  background: #82C0CC;
 }
 
 .person-name {
-  position: relative;
-  float: inherit;
-  top: 30px;
-  left: 35%;
   font-weight: bold;
 }
 
@@ -353,6 +367,52 @@ a.forgot-password { font-size: 15px; }
   margin: -5px;
   font-size: medium;
 }
+
+.timestemp-chat {
+  text-align: right;
+  margin-bottom: -10px;
+}
+
+.timestemp-chat-floating {
+  position: relative;
+  float: left;
+  top: 90px;
+  right: 70px;
+}
+
+.message-input {
+  width: 75vw;
+  height: 10vh;
+  resize: none;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+  border: solid #489FB5 2px;
+  box-shadow: 0 2px 4px #cccccc;
+  background: #ffffff;
+
+}
+
+.send-msg-btn-chat {
+  position: relative;
+  float: right;
+  right: -20%;
+  bottom: 72px;
+  height: 40px;
+  width: 40px;
+  border-radius: 12px;
+  border: transparent;
+  background-color: #489fb5;
+  box-shadow: 0 2px 2px #cccccc;
+}
+
+.send-msg-btn-chat .material-icons {
+  text-align: center;
+  font-size: 24px;
+  padding-top: 5px;
+  color: #fff;
+}
+.send-msg-btn-chat:hover { background-color: #ffa62b; }
 
 
 
