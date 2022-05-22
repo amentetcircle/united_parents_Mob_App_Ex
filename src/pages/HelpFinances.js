@@ -1,97 +1,187 @@
 import React from "react";
-import { getDatabase, ref, child, get, set } from "firebase/database";
+import {getDatabase, ref, child, get, set} from "firebase/database";
 
 // all changes on this page by Katharina Zirkler
-// todo: only show edit button if user is admin
-// todo: make changes stay (backend)
-//      -> mockup testContent / Content1 holt sich Inhalt in Firebase?
-// todo: possibility to add <p>
-// todo: format input? (line breaks, font weight, ....)
 
+// todo: only show edit button if user is admin
+// done: change state for all content toggles
+// done: make changes stay (backend)
+//      -> mockup testContent / Content1 holt sich Inhalt in Firebase?
+// done: use componentdidmount for initial DB fetch instead of constructor
+// done: introduce arguments to change different content boxes
+// todo: submit changes in HelpFinances for entire page
+// todo: possibility to add Infoboxes in edit-mode
+// todo: format input (font style, ....)
+// todo: same on Home
 
 class HelpFinances extends React.Component {
 
-    testContent = "This is as random a text as I could go. Pretend it's Lorem Ipsum etc" // todo: get content from db
-
     constructor(props) {
         super(props);
-        this.state = {
-            showPopup: false,
-            content1: this.testContent
-        };
-        this.togglePopup = this.togglePopup.bind(this)
+        this.toggleEditMode = this.toggleEditMode.bind(this)
         this.submitChanges = this.submitChanges.bind(this)
+        this.state = {
+            editMode: false
+        }
     }
 
     submitChanges() {
-        if (this.element.value !== '') {
-            this.setState({
-                content1: this.element.value
-            })
-            set(ref(getDatabase(), 'Help/'), {
-                Content1: this.element.value,
-            }).then(r => {});
-            const dbRef = ref(getDatabase());
-            get(child(dbRef, `Help/Content1`)).then((snapshot) => {
-                if (snapshot.exists()) {
-                    alert(snapshot.val());
-                } else {
-                    alert("No data available");
-                }
-            }).catch((error) => {
-                alert(error);
-            });
-        }
-        this.togglePopup()
+        // to be implemented
+
+        this.toggleEditMode()
     }
 
-    togglePopup() {
+    toggleEditMode() {
         this.setState({
-            showPopup: !this.state.showPopup
+            editMode: !this.state.editMode
         });
     }
 
     render() {
-        return (
-            <div>
-                <h1>Hilfe & Finanzen</h1>
-                <div className="content-box">
-                    <h1 className="primary">Hilfestellungen für dein Studium</h1>
-                    <button onClick={this.togglePopup.bind(this)}>Ändere Inhalt</button>
+        return <div>
+            <h1>Hilfe & Finanzen</h1>
+            <button className="help-button-edit icons-container" onClick={this.toggleEditMode}>
+                <span className="material-icons">edit_note</span>
+            </button>
+            <br/>
 
-                    <p id="textHelp1" className="text">{this.state.content1}
-                        {this.state.showPopup ?
-                            <div className='popup'>
-                                <div className='popup_inner'>
-                                    <label>Neuer Inhalt:</label>
-                                    <input ref={el => this.element = el}></input>
-                                    <button onClick={this.submitChanges}>Speichere Änderungen</button>
-                                </div>
-                            </div>
-                            : null
-                        }
-                    </p>
+            <InfoBox path="content1" toggle={this.state.editMode}/>
+            <InfoBox path="content2" toggle={this.state.editMode}/>
+            {this.state.editMode ?
+                <div>
+                    <button className="help-button-save zip-button" onClick={this.submitChanges}>Speichern</button>
                 </div>
+                : null}
+        </div>;
+    }
+}
+
+
+class InfoBox extends React.Component {
+
+    initialTitle = "Title"
+    initialContent = "Content"
+
+
+    constructor(props) {
+        super(props);
+        this.path = this.props.path
+        this.state = {
+            title: this.initialTitle,
+            content: this.initialContent
+        };
+        this.db = getDatabase()
+        this.updateContent = this.updateContent.bind(this)
+        this.submitChangesTitle = this.submitChangesTitle.bind(this)
+        this.submitChangesContent = this.submitChangesContent.bind(this)
+    }
+
+    componentDidMount() {
+        this.updateContent()
+        this.updateTitle()
+    }
+
+    updateContent() {
+        get(child(ref(this.db), "Help/" + this.path + "/content")).then((snapshot) => {
+            if (snapshot.exists()) {
+                this.setState(
+                    {
+                        content: snapshot.val()
+                    }
+                )
+            } else {
+                alert("No data available");
+            }
+        }).catch((error) => {
+            alert(error);
+        });
+    }
+
+    updateTitle() {
+        get(child(ref(this.db), "Help/" + this.path + "/title")).then((snapshot) => {
+            if (snapshot.exists()) {
+                this.setState(
+                    {
+                        title: snapshot.val()
+                    }
+                )
+            } else {
+                alert("No data available");
+            }
+        }).catch((error) => {
+            alert(error);
+        });
+    }
+
+    submitChangesTitle() {
+        if (this.element.value !== '') {
+            this.setState({
+                title: this.element.value
+            })
+            let _value = this.element.value
+            set(ref(this.db, 'Help/' + this.path), {
+                title: _value
+            }).then(() => {
+            });
+            this.updateContent()
+        }
+    }
+
+    submitChangesContent() {
+        if (this.element.value !== '') {
+            this.setState({
+                content: this.element.value
+            })
+            let _value = this.element.value
+            set(ref(this.db, 'Help/' + this.path), {
+                content: _value
+            }).then(() => {
+            });
+            this.updateContent()
+        }
+    }
+
+
+    render() {
+        return (
+            <div className="content-box help">
+                <div className="uni-logo">
+                    <img src="./images/fra-uas-logo.svg" className="logo-img" alt="Fra-UAS"></img>
+                </div>
+                <h1 className="primary">{this.state.title}</h1>
+                {this.props.toggle ?
+                    <div className='popup'>
+                        <div>
+                            <label>Neuer Titel:</label>
+                            <input ref={el => this.element = el}></input>
+                            {/*<button onClick={() => this.submitChangesTitle}>Speichern</button>*/}
+                        </div>
+                    </div>
+                    : null
+                }
+
+                <p className="text help-p">{this.state.content}
+                    {this.props.toggle ?
+                        <div className='popup'>
+                            <div>
+                                <label>Neuer Inhalt:</label>
+                                <textarea ref={el => this.element = el}></textarea>
+                                {/*<button onClick={() => this.submitChangesContent}>Speichern</button>*/}
+                            </div>
+                        </div>
+                        : null
+                    }
+                </p>
             </div>
         );
     }
 }
 
+
 function Help() {
-    return <HelpFinances/>;
+
+    return <HelpFinances/>
+
 }
 
 export default Help;
-
-
-// import React from "react";
-//
-// function Help() {
-//     return (
-//         <div>
-//             <h1>Hilfe & Finanzen</h1>
-//         </div>
-//     );
-// }
-//
-// export default Help;

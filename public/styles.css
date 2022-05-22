@@ -415,6 +415,37 @@ a.forgot-password { font-size: 15px; }
 .send-msg-btn-chat:hover { background-color: #ffa62b; }
 
 
+/*-----------Help&Finances Content----------------*/
+/* all changes in this section by Katharina Zirkler */
+
+.help {
+  text-align: center;
+}
+
+.help-p {
+  margin-top: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.help-button-edit {
+  position: relative;
+  float: right;
+  right: -25%;
+  bottom: 50px;
+  height: 50px;
+  width: 50px;
+  border: transparent;
+  background-color: transparent;
+}
+
+.help-button-save {
+  position: relative;
+  float: right;
+  right: -25%;
+  top: -20px
+}
+
 
 /* ---------- Search User Content ---------- */
 /* Hide Spinners from Number input */
