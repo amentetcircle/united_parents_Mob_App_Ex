@@ -12,25 +12,25 @@ import {useCollectionData} from "react-firebase-hooks/firestore";
 
 
 
-
+//Maximilian Fay
 function Chats() {
     const [messages, setMessage] = useState([]);
     const messagesCollectionRef = collection(db, "messages");
     const [newMessage, setNewMessage] = useState("");
-    const q = query(messagesCollectionRef,orderBy("createdAt"),limit(25));
+    const q = query(messagesCollectionRef, orderBy("createdAt"), limit(25));
     const [m] = useCollectionData(q, {uid: "id"});
 
-   /* const getMessage = async () => {
+    /* const getMessage = async () => {
 
-        //const data = await getDocs(messagesCollectionRef)
-        //setMessage(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
-    };
-    useEffect(() => {
-        getMessage();
+         //const data = await getDocs(messagesCollectionRef)
+         //setMessage(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
+     };
+     useEffect(() => {
+         getMessage();
 
-    },[]);*/
+     },[]);*/
 
-    function ChatMessage(props){
+    function ChatMessage(props) {
         const {text, uid} = props.message;
         const messageTyp = uid === auth.currentUser.uid ? "sent" : "received";
 
@@ -41,11 +41,15 @@ function Chats() {
         )
     }
 
-    const sendMessage = async (e) =>{
+    const sendMessage = async (e) => {
         e.preventDefault();
         const auth = getAuth();
         const userID = auth.currentUser
-        await addDoc(messagesCollectionRef,{text:newMessage, sender_uid: userID.uid, createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+        await addDoc(messagesCollectionRef, {
+            text: newMessage,
+            sender_uid: userID.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
 
         setNewMessage("");
     }
@@ -54,18 +58,19 @@ function Chats() {
 
 
         <div>
-                {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+            {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
 
-               <input value={newMessage} onChange={(e) =>setNewMessage(e.target.value)}/>
-               <button onClick={sendMessage}>submit</button>
+            <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+            <button onClick={sendMessage}>submit</button>
 
         </div>
 
 
-
     );
+}
+//Maximilian Fay
 
-function CreateChat() {
+/*function CreateChat() {
     return (
         <div>
             <div id="specific-chat" className="chat-box">
@@ -143,6 +148,6 @@ function senderMessage(messageText=null) {
     element.appendChild(tag);
 
     window.scrollTo(0, document.body.scrollHeight);
-}
+}*/
 
-export default CreateChat;
+export default Chats;
