@@ -428,6 +428,12 @@ a.forgot-password { font-size: 15px; }
   text-align: left;
 }
 
+.help-button:active {
+  background-color: #489fb5;
+  box-shadow: 0 5px gainsboro;
+  transform: translateY(4px);
+}
+
 .help-button-edit {
   position: relative;
   float: right;
@@ -439,11 +445,22 @@ a.forgot-password { font-size: 15px; }
   background-color: transparent;
 }
 
-.help-button-save {
+.save {
   position: relative;
   float: right;
+  margin-left: 10px;
   right: -25%;
   top: -20px
+}
+
+.help-textarea {
+  caret-color: black;
+  width: 90%;
+  height: 300px;
+  margin: 10px;
+  border: 1px solid #cccccc;
+  padding: 0.5em;
+  font-family: Tahoma, sans-serif;
 }
 
 
