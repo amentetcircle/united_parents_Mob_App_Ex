@@ -31,8 +31,8 @@ function Chats() {
      },[]);*/
 
     function ChatMessage(props) {
-        const {text, uid} = props.message;
-        const messageTyp = uid === auth.currentUser.uid ? "sent" : "received";
+        const {text, sender_uid} = props.message;
+        const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
         return (
             <div className={`message ${messageTyp}`}>
@@ -51,7 +51,7 @@ function Chats() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
 
-        setNewMessage("");
+        //setNewMessage("");
     }
 
     return (
