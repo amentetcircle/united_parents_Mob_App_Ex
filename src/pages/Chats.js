@@ -36,7 +36,7 @@ function Chats() {
 
         return (
             <div className={`message ${messageTyp}`}>
-                <p>{text} , {messageTyp}</p>
+                <p>{text} , {messageTyp}, {sender_uid}</p>
             </div>
         )
     }
