@@ -1,26 +1,70 @@
-import React from "react";
-import Data from "bootstrap/js/src/dom/data";
+//import Data from "bootstrap/js/src/dom/data";
+import React, {useEffect, useState} from "react";
 
-class Chats extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+//Maximilian Fay
+import "firebase/compat/firestore";
+import "firebase/compat/auth";
+import  {db, auth} from "../Firebase";
+import {collection, getDocs, addDoc, orderBy, query, limit} from "firebase/firestore";
+import firebase from "firebase/compat/app";
+import {getAuth} from "firebase/auth";
+import {useCollectionData} from "react-firebase-hooks/firestore";
 
-    render() {
+
+
+
+function Chats() {
+    const [messages, setMessage] = useState([]);
+    const messagesCollectionRef = collection(db, "messages");
+    const [newMessage, setNewMessage] = useState("");
+    const q = query(messagesCollectionRef,orderBy("createdAt"),limit(25));
+    const [m] = useCollectionData(q, {uid: "id"});
+
+   /* const getMessage = async () => {
+
+        //const data = await getDocs(messagesCollectionRef)
+        //setMessage(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
+    };
+    useEffect(() => {
+        getMessage();
+
+    },[]);*/
+
+    function ChatMessage(props){
+        const {text, uid} = props.message;
+        const messageTyp = uid === auth.currentUser.uid ? "sent" : "received";
+
         return (
-            <div id="chat" className="content-box home">
-                <h1>Chats</h1>
-                <button onClick={()=>this.addChat("Tim","Hi","10:57", "10.05.2001")}>Color</button>
-                <div className="content-box-in-box">
-                    <img className="round-image" src="https://i.pravatar.cc/200"></img>
-                    <p className="user-name">Username</p>
-                    <p className="last-message">Am Samstag habe ich leider keine Zeit...</p>
-                    <p className="time-date">10:47/</p>
-                    <p className="time-date">15.10.2001</p>
-                </div>
+            <div className={`message ${messageTyp}`}>
+                <p>{text} , {messageTyp}</p>
             </div>
-        );
+        )
     }
+
+    const sendMessage = async (e) =>{
+        e.preventDefault();
+        const auth = getAuth();
+        const userID = auth.currentUser
+        await addDoc(messagesCollectionRef,{text:newMessage, sender_uid: userID.uid, createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+
+        setNewMessage("");
+    }
+
+    return (
+
+
+        <div>
+                {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+
+               <input value={newMessage} onChange={(e) =>setNewMessage(e.target.value)}/>
+               <button onClick={sendMessage}>submit</button>
+
+        </div>
+
+
+
+    );
+
 }
 
 export default Chats;
