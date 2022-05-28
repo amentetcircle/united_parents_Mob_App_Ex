@@ -18,9 +18,7 @@ function App() {
     return (
         <div>
             <SidebarLogReg/>
-
             <div className="contents-container">
-
                 <UserAuthContextProvider>
                     <Routes>
                         <Route
@@ -32,6 +30,9 @@ function App() {
                         <Route
                             path="/chats"
                             element={<ProtectedRoutes > <ChatsList/> </ProtectedRoutes>}/>
+                        <Route
+                            path="/specific-chat"
+                            element={<ProtectedRoutes> <Chats/> </ProtectedRoutes>}/>
                         <Route
                             path="/help-finances"
                             element={<ProtectedRoutes > <Help/> </ProtectedRoutes>}/>
