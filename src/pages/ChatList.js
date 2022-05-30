@@ -1,7 +1,7 @@
 import React from "react";
 import {Link, Route, useNavigate} from 'react-router-dom'
 
-
+//Tim Finmans
 function Chat (){
     let navigate = useNavigate();
 
@@ -42,6 +42,7 @@ function Chat (){
 
 }
 
+//Tim Finmans
 class ChatOverview {
     name;
     lastMessage;
@@ -54,9 +55,6 @@ class ChatOverview {
         this.lastTimestemp = lastTimestemp;
         this.lastDate = lastDate;
     }
-
-
-
 }
 
 

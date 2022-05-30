@@ -20,6 +20,7 @@ function Chats() {
     const q = query(messagesCollectionRef, orderBy("createdAt"), limit(25));
     const [m] = useCollectionData(q, {uid: "id"});
 
+    // CreateChat()
     /* const getMessage = async () => {
 
          //const data = await getDocs(messagesCollectionRef)
@@ -29,16 +30,34 @@ function Chats() {
          getMessage();
 
      },[]);*/
-
+    //Tim Finmans(Frontend) & Max Fay(Backend)
     function ChatMessage(props) {
-        const {text, sender_uid} = props.message;
+        const {text, sender_uid, createdAt} = props.message;
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
-        return (
-            <div className={`message ${messageTyp}`}>
-                <p>{text} , {messageTyp}, {sender_uid}</p>
-            </div>
-        )
+        if(messageTyp == "sent") {  //{createdAt.toString()}
+            return (
+                <div className="message sender">
+                    <p className="message-text">
+                        {text} , {messageTyp}, {sender_uid}
+                    </p>
+                    <p className="timestemp-chat">
+
+                    </p>
+                </div>
+            )
+        } else if(messageTyp == "received") {   //{createdAt.toString()}
+            return (
+                <div className="message">
+                    <p className="message-text">
+                        {text} , {messageTyp}, {sender_uid}
+                    </p>
+                    <p className="timestemp-chat">
+
+                    </p>
+                </div>
+            )
+        }
     }
 
     const sendMessage = async (e) => {
@@ -53,24 +72,35 @@ function Chats() {
 
         //setNewMessage("");
     }
-
+    //Tim Finmans loading the basic overview for a specific chat
     return (
-
-
         <div>
-            {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+            <div id="specific-chat" className="chat-box">
+                <div className="floating-heading">
+                    <div className="chat-heading">
+                        <div className="image-holder">
+                            <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200"></img>
+                        </div>
+                        <p className="person-name">Username</p>
+                    </div>
+                </div>
+                {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
 
-            <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
-            <button onClick={sendMessage}>submit</button>
-
+                <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+                <button onClick={sendMessage}>submit</button>
+            </div>
+            <textarea name="textarea" row="5" className="message-input" id="messageInput" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+            <button className="send-msg-btn-chat" onClick={sendMessage}>
+                <span className="material-icons">forum</span>
+            </button>
         </div>
 
 
     );
 }
-//Maximilian Fay
 
-/*function CreateChat() {
+//Tim Finmans
+function CreateChat() {
     return (
         <div>
             <div id="specific-chat" className="chat-box">
@@ -99,6 +129,7 @@ function Chats() {
     );
 }
 
+//Tim Finmans
 function receiverMessage(messageText) {
 
     const tag = document.createElement("div");
@@ -119,7 +150,7 @@ function receiverMessage(messageText) {
 
     window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "auto" });
 }
-
+//Tim Finmans
 function senderMessage(messageText=null) {
     const tag = document.createElement("div");
     tag.className = "message sender";
@@ -148,6 +179,6 @@ function senderMessage(messageText=null) {
     element.appendChild(tag);
 
     window.scrollTo(0, document.body.scrollHeight);
-}*/
+}
 
 export default Chats;
