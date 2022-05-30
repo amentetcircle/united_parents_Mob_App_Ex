@@ -14,49 +14,42 @@ import {useCollectionData} from "react-firebase-hooks/firestore";
 
 //Maximilian Fay
 function Chats() {
-    const [messages, setMessage] = useState([]);
+    //const [messages, setMessage] = useState([]);
     const messagesCollectionRef = collection(db, "messages");
     const [newMessage, setNewMessage] = useState("");
-    const q = query(messagesCollectionRef, orderBy("createdAt"), limit(25));
+    const q = query(messagesCollectionRef, orderBy("createdAt"));
     const [m] = useCollectionData(q, {uid: "id"});
 
-    // CreateChat()
-    /* const getMessage = async () => {
 
-         //const data = await getDocs(messagesCollectionRef)
-         //setMessage(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
-     };
-     useEffect(() => {
-         getMessage();
 
-     },[]);*/
     //Tim Finmans(Frontend) & Max Fay(Backend)
     function ChatMessage(props) {
-        const {text, sender_uid, createdAt} = props.message;
+        const {text, sender_uid} = props.message;
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
-        if(messageTyp == "sent") {  //{createdAt.toString()}
+
+        if(messageTyp === "sent") {  //{createdAt.toString()}
             return (
                 <div className="message sender">
                     <p className="message-text">
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-
+                        18
                     </p>
                 </div>
-            )
-        } else if(messageTyp == "received") {   //{createdAt.toString()}
+            );
+        } else if(messageTyp === "received") {   //{createdAt.toString()}
             return (
                 <div className="message">
                     <p className="message-text">
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-
+                        18
                     </p>
                 </div>
-            )
+            );
         }
     }
 
@@ -70,7 +63,7 @@ function Chats() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
 
-        //setNewMessage("");
+        setNewMessage("");
     }
     //Tim Finmans loading the basic overview for a specific chat
     return (
@@ -79,15 +72,13 @@ function Chats() {
                 <div className="floating-heading">
                     <div className="chat-heading">
                         <div className="image-holder">
-                            <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200"></img>
+                            <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200%22%3E"></img>
                         </div>
                         <p className="person-name">Username</p>
                     </div>
                 </div>
                 {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
 
-                <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
-                <button onClick={sendMessage}>submit</button>
             </div>
             <textarea name="textarea" row="5" className="message-input" id="messageInput" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
             <button className="send-msg-btn-chat" onClick={sendMessage}>
@@ -99,8 +90,9 @@ function Chats() {
     );
 }
 
+
 //Tim Finmans
-function CreateChat() {
+/*function CreateChat() {
     return (
         <div>
             <div id="specific-chat" className="chat-box">
@@ -180,5 +172,5 @@ function senderMessage(messageText=null) {
 
     window.scrollTo(0, document.body.scrollHeight);
 }
-
+*/
 export default Chats;
