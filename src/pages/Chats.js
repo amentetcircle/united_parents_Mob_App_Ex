@@ -35,7 +35,7 @@ function Chats() {
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-                        {createdAt.toDate().toTimeString()}
+                        {createdAt.toDate().toLocaleTimeString('en-US')}
                     </p>
                 </div>
             );
@@ -46,7 +46,7 @@ function Chats() {
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-                        {createdAt.toDate().toTimeString()}
+                        {createdAt.toDate().toLocaleTimeString('en-US')}
                     </p>
                 </div>
             );
