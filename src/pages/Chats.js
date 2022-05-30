@@ -24,7 +24,7 @@ function Chats() {
 
     //Tim Finmans(Frontend) & Max Fay(Backend)
     function ChatMessage(props) {
-        const {text, sender_uid, createdAt} = props.message;
+        const {text, sender_uid} = props.message;
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
 
@@ -35,7 +35,7 @@ function Chats() {
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-                        {createdAt.toDate().toLocaleTimeString('en-US')}
+                        18
                     </p>
                 </div>
             );
@@ -46,7 +46,7 @@ function Chats() {
                         {text} , {messageTyp}, {sender_uid}
                     </p>
                     <p className="timestemp-chat">
-                        {createdAt.toDate().toLocaleTimeString('en-US')}
+                        18
                     </p>
                 </div>
             );
