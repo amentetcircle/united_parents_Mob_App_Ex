@@ -27,6 +27,7 @@ function Chats() {
         const {text, sender_uid} = props.message;
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
+        window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "auto" });
 
         if(messageTyp === "sent") {  //{createdAt.toString()}
             return (
@@ -65,6 +66,7 @@ function Chats() {
 
         setNewMessage("");
     }
+
     //Tim Finmans loading the basic overview for a specific chat
     return (
         <div>
