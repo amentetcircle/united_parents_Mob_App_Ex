@@ -337,7 +337,7 @@ a.forgot-password { font-size: 15px; }
   margin-bottom: 20px;
   margin-left: 15px;
   border-radius: 40px 8px 40px 8px;
-  border: solid #000000 2px;
+  border: solid #000000 1px;
   box-shadow: 0 2px 4px #cccccc;
 }
 

@@ -27,7 +27,9 @@ function Chats() {
         const {text, sender_uid} = props.message;
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
-        window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "auto" });
+        // const element = document.getElementById("messageInput");
+        // element.scrollIntoView()
+        window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "auto" });    // scrolls down when a new message is added but not when the chat ist loaded. Don't know why at the moment
 
         if(messageTyp === "sent") {  //{createdAt.toString()}
             return (
@@ -80,15 +82,12 @@ function Chats() {
                     </div>
                 </div>
                 {m && m.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
-
             </div>
             <textarea name="textarea" row="5" className="message-input" id="messageInput" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
             <button className="send-msg-btn-chat" onClick={sendMessage}>
                 <span className="material-icons">forum</span>
             </button>
         </div>
-
-
     );
 }
 
