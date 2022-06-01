@@ -429,8 +429,8 @@ a.forgot-password { font-size: 15px; }
 
 .help-button:active {
   background-color: #489fb5;
-  box-shadow: 0 5px gainsboro;
-  transform: translateY(4px);
+  box-shadow: 0 5px #cccccc;
+  transform: translateY(4px) translateX(2px);
 }
 
 .help-button-edit {

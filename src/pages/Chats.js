@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 //Maximilian Fay
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
-import  {db, auth} from "../Firebase";
+import  {fsDatabase, auth} from "../Firebase";
 import {collection, getDocs, addDoc, orderBy, query, limit} from "firebase/firestore";
 import firebase from "firebase/compat/app";
 import {getAuth} from "firebase/auth";
@@ -15,7 +15,7 @@ import {useCollectionData} from "react-firebase-hooks/firestore";
 //Maximilian Fay
 function Chats() {
     //const [messages, setMessage] = useState([]);
-    const messagesCollectionRef = collection(db, "messages");
+    const messagesCollectionRef = collection(fsDatabase, "messages");
     const [newMessage, setNewMessage] = useState("");
     const q = query(messagesCollectionRef, orderBy("createdAt"));
     const [m] = useCollectionData(q, {uid: "id"});
