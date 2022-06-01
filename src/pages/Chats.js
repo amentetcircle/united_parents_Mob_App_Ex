@@ -82,9 +82,7 @@ function Chats() {
             <div id="specific-chat" className="chat-box">
                 <div className="floating-heading">
                     <div className="chat-heading">
-                        <div className="image-holder">
-                            <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200%22%3E"></img>
-                        </div>
+                        <img className="round-image-for-specific-chat" src="https://i.pravatar.cc/200"></img>
                         <p className="person-name">Username</p>
                     </div>
                 </div>

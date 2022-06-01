@@ -270,7 +270,6 @@ a.forgot-password { font-size: 15px; }
 
 .round-image {
   margin-right: 20px;
-  position: inherit;
   float: left;
   height: 90px;
   width: 90px;
@@ -294,7 +293,7 @@ a.forgot-password { font-size: 15px; }
 .floating-heading {
   position: sticky;
   margin-bottom: 20px;
-  top: 55px;
+  top: 60px;
   padding: 30px;
   background: #82C0CC;
   border-radius: 8px;

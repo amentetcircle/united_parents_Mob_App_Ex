@@ -5,14 +5,12 @@ import {Link, Route, useNavigate} from 'react-router-dom'
 function Chat (){
     let navigate = useNavigate();
 
-
     // Hier müssen später mal die
     let messages = [new ChatOverview("Lisa", "Ich kann nicht...",  "10:44", "16.04.1999"),
         new ChatOverview("Moritz", "Komme gleich.",  "11:39", "7.04.1999"),
         new ChatOverview("Martin", "Wie gehts?",  "12:54", "6.04.1999"),
         new ChatOverview("Mira", "Na hör mal.",  "15:12", "5.04.1999"),
         new ChatOverview("Faru", "Was soll das?",  "1:43", "4.04.1999")]
-
 
     return(
         <div id="chat" className="content-box">
