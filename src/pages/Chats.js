@@ -15,16 +15,21 @@ import {useCollectionData} from "react-firebase-hooks/firestore";
 //Maximilian Fay
 function Chats() {
     //const [messages, setMessage] = useState([]);
+    //get collection reference
     const messagesCollectionRef = collection(fsDatabase, "messages");
     const [newMessage, setNewMessage] = useState("");
+    //query on collection reference
     const q = query(messagesCollectionRef, orderBy("createdAt"));
+    //hook to load data
     const [m] = useCollectionData(q, {uid: "id"});
 
 
 
     //Tim Finmans(Frontend) & Max Fay(Backend)
     function ChatMessage(props) {
+        //get porperties from current document
         const {text, sender_uid} = props.message;
+        //check if message from current User
         const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
 
         // const element = document.getElementById("messageInput");
@@ -58,11 +63,13 @@ function Chats() {
 
     const sendMessage = async (e) => {
         e.preventDefault();
-        const auth = getAuth();
-        const userID = auth.currentUser
+        //const auth = getAuth();
+        //get current user object
+        const user = auth.currentUser
+        //add document to collection
         await addDoc(messagesCollectionRef, {
             text: newMessage,
-            sender_uid: userID.uid,
+            sender_uid: user.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
 
