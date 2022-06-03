@@ -3,14 +3,13 @@ import {Link, Route, useNavigate} from 'react-router-dom'
 import context from "react-bootstrap/NavbarContext";
 import {forEach} from "react-bootstrap/ElementChildren";
 
-var selectedChat;
 
 //Tim Finmans
 function start (){
     // will be called when the chat area is entered
     return(
         <div id="whole-chat-view" className="whole-chat">
-            <div className="chat-list-box">
+            <div className="chat-list-box" id="chat-list-box">
                 {newChats.map(chat=>{
                     return(
                         chat.addToViewOverview()
@@ -48,25 +47,32 @@ class Chat {
             this.messages.push(message)
             }
         )
+        this.lastMessage = this.messages[(this.messages.length - 1)]
     }
 
     // add the chats that were already opened and can be chosen from the array
     addToViewOverview(){
         return (
-            <div className="chat-overview" onClick={()=>this.renderChat()}>
+            <div id={this.name} className="chat-overview" onClick={()=>this.renderChat()}>
                 <img className="round-image" src="https://i.pravatar.cc/200"></img>
                 <div className="text-wrapper-overview">
                     <p className="user-name">{this.name}</p>
-                    <p className="last-message">{this.lastMessage}</p>
+                    <p className="last-message">{this.lastMessage.text}</p>
                     <p className="timestamp-overview">{this.lastDate}</p>
                 </div>
             </div>
         );
     }
 
-    // rende a specific chat when a chat was clicked
+    // render a specific chat when a chat was clicked
     renderChat(){
+        // high lite this chat and un high light the previous one, if the previous one isn't this one
+        if(selectedChat !== null || selectedChat !== this) document.getElementById(selectedChat.name).style.backgroundColor = '#82C0CC';
+        document.getElementById(this.name).style.backgroundColor = '#cccccc';
+
+        // set the selected chat to this one
         selectedChat = this;
+
         //delete the chat that is displayed at the moment
         const deleteChatWindow = document.getElementById("to-remove-and-add");
         deleteChatWindow.remove();
@@ -80,6 +86,8 @@ class Chat {
         this.messages.map(message=>{
             const image = document.createElement("img")
             const containerForMessage = document.createElement("div");
+
+            // add the style depending on the message type
             if(message.type === "r"){
                 containerForMessage.className = "message";
                 image.className = "round-image-for-chat"
@@ -90,24 +98,31 @@ class Chat {
                 image.src = "https://i.pravatar.cc/300"
             }
 
+            //create text
             const text = document.createElement("p");
             text.textContent = message.text;
             text.className = "message-text";
 
+            //create timestamp
             const messageTimestamp = document.createElement("p");
             messageTimestamp.textContent = message.timestamp;
             messageTimestamp.className = "timestamp-chat";
 
+            //add timestamp and text to the container
             containerForMessage.appendChild(text);
             containerForMessage.appendChild(messageTimestamp)
+
+            //add the image and the message to the container which contains all the messages
             chatWindow.appendChild(image)
             chatWindow.appendChild(containerForMessage);
         })
 
+        //create a white bar which will prevent the chat from being displayed directly at the chat containers border
         const whiteBar = document.createElement("div");
         whiteBar.id = "white-bar";
         whiteBar.className = "white-bar";
 
+        // get the whole window and add the messages, white bar | scroll to the bottom of the container
         const wholeChatWindow = document.getElementById("chat-box");
         wholeChatWindow.appendChild(chatWindow);
         wholeChatWindow.appendChild(whiteBar);
@@ -115,8 +130,26 @@ class Chat {
     }
 
     sendMessage(text) {
+        // return when the text ist empty
         if(text === "") return;
-        let message = new Message(text,"10:43", "s")
+
+        // swap chats when the selected chat isn't already at the first place
+        if(newChats[0] !== selectedChat){
+            // delete this Element from the overview
+            let thisOverview = document.getElementById(this.name)
+            document.getElementById(this.name).remove()
+
+            // insert it in front of the first element of the view
+            let toAddTo = document.getElementById("chat-list-box")
+            toAddTo.insertBefore(thisOverview, document.getElementById(newChats[0].name))
+        }
+
+        // sort the array => pull the chat that "wrote" a message on top
+        let thisElement = newChats[newChats.indexOf(this)]  // save the element
+        newChats.splice(newChats.indexOf(this), 1)  // delete it from the current place
+        newChats.splice(0, 0, thisElement)  // put it on top
+
+        let message = new Message(text,"10:43", "s")    // timestamp has to be added
 
         // clear input
         document.getElementById("input").value = "";
@@ -124,10 +157,12 @@ class Chat {
         // get object to add the message to
         const addToChatWindow = document.getElementById("to-remove-and-add");
 
+        // create image
         const image = document.createElement("img")
         image.className = "round-image-for-chat receiver-image"
         image.src = "https://i.pravatar.cc/300"
 
+        // create container for timestamp and text => create text and timestamp
         const containerForMessage = document.createElement("div");
         containerForMessage.className = "message sender";
 
@@ -142,6 +177,7 @@ class Chat {
         containerForMessage.appendChild(textContainer);
         containerForMessage.appendChild(messageTimestamp);
 
+        // remove white bar to add it later on again
         const removeWhiteBar = document.getElementById("white-bar");
         removeWhiteBar.remove()
 
@@ -156,7 +192,6 @@ class Chat {
         wholeChatWindow.appendChild(whiteBar);
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
     }
-
 }
 
 class Message {
@@ -213,7 +248,7 @@ var newMessages2 = [new Message("Hey", "10:40", "s"),
     new Message("Na das wollen wir ja mal sehen was da bei raus kommt.", "10:47", "s")]
 
 var newChats = [new Chat("Tim","Hi wie gehts?","10.07.2001","11:25", newMessages),
-    new Chat("Mennwin","Hi wie gehts dir und deiner ganze Familie?","10.07.2001","11:25", newMessages2),
+    new Chat("Mennwin Oh man Oh men oh ah uh men","Hi wie gehts dir und deiner ganze Familie?","10.07.2001","11:25", newMessages2),
     new Chat("Max","Drei Mal darfst du raten :)","10.07.2001","11:25", newMessages),
     new Chat("Katharina","Übermorgen leider erst wieder","10.07.2001","11:25", newMessages),
     new Chat("Martina","Hi wie gehts?","10.07.2001","11:25", newMessages),
@@ -221,5 +256,9 @@ var newChats = [new Chat("Tim","Hi wie gehts?","10.07.2001","11:25", newMessages
     new Chat("Andreas","Hey","10.07.2001","11:25", newMessages),
     new Chat("Herr Winkelmann","Völlig Normal!","10.07.2001","11:25", newMessages),
     new Chat("Jason","Das kann ja wohl nicht sein?!","10.07.2001","11:25", newMessages)];
+
+
+// store the selected chat
+var selectedChat = newChats[0];
 
 export default start;
