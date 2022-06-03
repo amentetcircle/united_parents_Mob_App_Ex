@@ -21,7 +21,7 @@ function start (){
                 <div id="to-remove-and-add"></div>
             </div>
             <div className="input-wrapper">
-                <textarea id="input" className="input"></textarea>
+                <textarea id="input" className="input" title="wofür"></textarea>
                 <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
                     <span className="material-icons">forum</span>
                 </button>
