@@ -3,9 +3,10 @@ import {Link, Route, useNavigate} from 'react-router-dom'
 import context from "react-bootstrap/NavbarContext";
 import {forEach} from "react-bootstrap/ElementChildren";
 
+var selectedChat;
+
 //Tim Finmans
 function start (){
-
     // will be called when the chat area is entered
     return(
         <div id="whole-chat-view" className="whole-chat">
@@ -19,9 +20,12 @@ function start (){
             <div id="chat-box" className="specific-chat">
                 <div id="to-remove-and-add"></div>
             </div>
-            <textarea className="input">
-
-            </textarea>
+            <div className="input-wrapper">
+                <textarea id="input" className="input"></textarea>
+                <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
+                    <span className="material-icons">forum</span>
+                </button>
+            </div>
         </div>
     );
 }
@@ -33,7 +37,6 @@ class Chat {
     lastTimestamp;
     lastDate;
     messages = [];
-    specificChatHTML;
 
     // constructor to fill the variables
     constructor(name, lastMessage, lastTimestemp, lastDate, messages) {
@@ -63,6 +66,7 @@ class Chat {
 
     // rende a specific chat when a chat was clicked
     renderChat(){
+        selectedChat = this;
         //delete the chat that is displayed at the moment
         const deleteChatWindow = document.getElementById("to-remove-and-add");
         deleteChatWindow.remove();
@@ -100,11 +104,59 @@ class Chat {
             chatWindow.appendChild(containerForMessage);
         })
 
+        const whiteBar = document.createElement("div");
+        whiteBar.id = "white-bar";
+        whiteBar.className = "white-bar";
 
         const wholeChatWindow = document.getElementById("chat-box");
         wholeChatWindow.appendChild(chatWindow);
+        wholeChatWindow.appendChild(whiteBar);
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
     }
+
+    sendMessage(text) {
+        if(text === "") return;
+        let message = new Message(text,"10:43", "s")
+
+        // clear input
+        document.getElementById("input").value = "";
+
+        // get object to add the message to
+        const addToChatWindow = document.getElementById("to-remove-and-add");
+
+        const image = document.createElement("img")
+        image.className = "round-image-for-chat receiver-image"
+        image.src = "https://i.pravatar.cc/300"
+
+        const containerForMessage = document.createElement("div");
+        containerForMessage.className = "message sender";
+
+        const textContainer = document.createElement("p");
+        textContainer.textContent = message.text;
+        textContainer.className = "message-text";
+
+        const messageTimestamp = document.createElement("p");
+        messageTimestamp.textContent = message.timestamp;
+        messageTimestamp.className = "timestamp-chat";
+
+        containerForMessage.appendChild(textContainer);
+        containerForMessage.appendChild(messageTimestamp);
+
+        const removeWhiteBar = document.getElementById("white-bar");
+        removeWhiteBar.remove()
+
+        const whiteBar = document.createElement("div");
+        whiteBar.id = "white-bar";
+        whiteBar.className = "white-bar";
+
+        addToChatWindow.appendChild(image)
+        addToChatWindow.appendChild(containerForMessage);
+
+        const wholeChatWindow = document.getElementById("chat-box");
+        wholeChatWindow.appendChild(whiteBar);
+        wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
+    }
+
 }
 
 class Message {
@@ -118,6 +170,7 @@ class Message {
         this.type = type;
     }
 
+    // not used at the moment because the messages need to be added to an Element via the ID
     addToView() {
         if(this.type === 's'){
             return(

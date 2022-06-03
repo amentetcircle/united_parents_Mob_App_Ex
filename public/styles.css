@@ -248,7 +248,8 @@ a.forgot-password { font-size: 15px; }
 /* ---------- Chat ---------- */
 
 .whole-chat {
-  width: 130%;
+  width: 85vw;
+  height: 85vh;
 }
 
 /* --- Chats Overview --- */
@@ -260,7 +261,7 @@ a.forgot-password { font-size: 15px; }
   overflow: hidden;
   overflow-y: scroll;
   height: fit-content;
-  max-height: 700px;
+  max-height: 600px;
   background-color: #999999;
   border-radius: 5px;
   border: solid #4d4d4d 1px;
@@ -334,10 +335,10 @@ a.forgot-password { font-size: 15px; }
   position: relative;
   float: left;
   width: 50%;
-  height: 600px;
+  height: 500px;
   overflow: hidden;
   overflow-y: scroll;
-  padding: 16px;
+  padding: 20px;
   background-color: #fdfdfc;
   border-radius: 8px;
   border: solid #489FB5 2px;
@@ -373,7 +374,7 @@ a.forgot-password { font-size: 15px; }
   padding: 16px;
   margin-bottom: 20px;
   margin-left: 15px;
-  border-radius: 40px 8px 40px 8px;
+  border-radius: 30px 8px 30px 8px;
   border: solid #000000 1px;
   box-shadow: 0 2px 4px #cccccc;
 }
@@ -382,6 +383,7 @@ a.forgot-password { font-size: 15px; }
   display: inline-block;
   margin-left: auto;
   margin-right: 15px;
+  border-radius: 8px 30px 8px 30px;
   float: right;
   background: #82C0CC;
 }
@@ -395,37 +397,72 @@ a.forgot-password { font-size: 15px; }
 .timestamp-chat {
   text-align: right;
   margin-bottom: -10px;
-  font-size: smaller;
+  font-size: small;
 }
 
 .timestamp-chat-floating {
   position: relative;
-  font-size: smaller;
+  font-size: small;
   float: left;
   top: 90px;
   right: 70px;
-  font-size: smaller;
+}
+
+.white-bar {
+  clear: both;
+  position: relative;
+  float: right;
 }
 
 /* --- Input for Chat --- */
 
-.input {
+.input-wrapper {
   position: relative;
   float: left;
-  resize: none;
   width: 50%;
   height: 100px;
-  overflow: hidden;
-  overflow-y: scroll;
   padding: 10px;
   background-color: #fdfdfc;
   border-radius: 8px;
   border: solid #489FB5 2px;
   box-shadow: 0 2px 4px #cccccc;
+  overflow-y: hidden;
+}
+
+.input {
+  position: relative;
+  float: left;
+  resize: none;
+  width: 80%;
+  height: 80px;
+  overflow: hidden;
+  overflow-y: scroll;
+  padding: 10px;
+  background-color: #fdfdfc;
+  border: transparent;
+  font-size: smaller;
 }
 
 .input::-webkit-scrollbar {
   display: none;
+}
+
+.send-msg-btn-chat {
+  position: relative;
+  float: left;
+  top: 15px;
+  left: 7%;
+  border-radius: 12px;
+  border: transparent;
+  background-color: #489fb5;
+  box-shadow: 0 2px 2px #cccccc;
+}
+
+.send-msg-btn-chat .material-icons {
+  text-align: center;
+  font-size: 24px;
+  padding-top: 5px;
+  color: #fff;
 }
 
 
