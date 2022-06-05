@@ -250,7 +250,9 @@ a.forgot-password { font-size: 15px; }
 .whole-chat {
   position: fixed;
   width: 85vw;
+  min-width: 650px;
   height: 85vh;
+  overflow-x: hidden;
 }
 
 /* --- Chats Overview --- */
@@ -285,7 +287,7 @@ a.forgot-password { font-size: 15px; }
 .round-image {
   position: inherit;
   float: left;
-  left: 5%;
+  left: 20px;
   top: 12px;
   height: 76px;
   width: 76px;
@@ -295,8 +297,8 @@ a.forgot-password { font-size: 15px; }
 
 .text-wrapper-overview {
   position: inherit;
-  left: 30px;
-  width: 90%;
+  left: 100px;
+  width: 65%;
 }
 
 .user-name {
@@ -329,6 +331,20 @@ a.forgot-password { font-size: 15px; }
   font-weight: normal;
 }
 
+.notification {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  font-size: small;
+  text-align: center;
+  background-color: #999999;
+  float: right;
+  bottom: 50px;
+  right: 10px;
+  border-radius: 13px;
+  border: solid #489FB5 2px;
+}
+
 /* --- Specific Chats --- */
 
 .to-remove-and-add {
@@ -341,8 +357,7 @@ a.forgot-password { font-size: 15px; }
   float: left;
   width: 50%;
   height: 500px;
-  overflow: hidden;
-  overflow-y: scroll;
+  overflow: scroll;
   padding: 20px;
   background-color: #fdfdfc;
   border-radius: 8px;

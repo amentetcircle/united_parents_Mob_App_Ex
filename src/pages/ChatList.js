@@ -1,8 +1,4 @@
 import React from "react";
-import {Link, Route, useNavigate} from 'react-router-dom'
-import context from "react-bootstrap/NavbarContext";
-import {forEach} from "react-bootstrap/ElementChildren";
-
 
 //Tim Finmans
 function start (){
@@ -24,6 +20,7 @@ function start (){
                 <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
                     <span className="material-icons">forum</span>
                 </button>
+                <button onClick={()=>newChats[7].addNotification()}>click</button>
             </div>
         </div>
     );
@@ -31,6 +28,7 @@ function start (){
 
 //Tim Finmans
 class Chat {
+    idReceiver;
     name;
     lastMessage;    // will be unnecessary in the future because it can be gained by taking the arrays last element
     lastTimestamp;
@@ -66,6 +64,9 @@ class Chat {
 
     // render a specific chat when a chat was clicked
     renderChat(){
+        //remove the notification
+        if(document.getElementById(this.name + "-notification") !== null) document.getElementById(this.name + "-notification").remove();
+
         // high lite this chat and un high light the previous one, if the previous one isn't this one
         if(selectedChat !== null || selectedChat !== this) document.getElementById(selectedChat.name).style.backgroundColor = '#82C0CC';
         document.getElementById(this.name).style.backgroundColor = '#cccccc';
@@ -191,6 +192,26 @@ class Chat {
         const wholeChatWindow = document.getElementById("chat-box");
         wholeChatWindow.appendChild(whiteBar);
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
+    }
+
+    addNotification() {
+        if(document.getElementById(this.name + "-notification") !== null) {
+            let existingNotification = document.getElementById(this.name + "-notification")
+            if(parseInt(existingNotification.textContent) > 98){
+                existingNotification.textContent = "99+";
+            }
+            else {
+                existingNotification.textContent = (parseInt(existingNotification.textContent) + 1).toString();
+            }
+            return;
+        }
+        let notification = document.createElement("div");
+        notification.className = "notification"
+        notification.id = this.name + "-notification"
+        notification.textContent = "1";
+
+        let overview = document.getElementById(this.name);
+        overview.appendChild(notification)
     }
 }
 
