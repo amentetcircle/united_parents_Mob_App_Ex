@@ -297,7 +297,8 @@ a.forgot-password { font-size: 15px; }
 
 .text-wrapper-overview {
   position: inherit;
-  left: 100px;
+  left: 35px;
+  padding-left: 70px;
   width: 65%;
 }
 
@@ -333,23 +334,22 @@ a.forgot-password { font-size: 15px; }
 
 .notification {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   font-size: small;
   text-align: center;
-  background-color: #999999;
+  background-color: #cccccc;
   float: right;
   bottom: 50px;
-  right: 10px;
+  right: 12px;
   border-radius: 13px;
-  border: solid #489FB5 2px;
+  border: solid #000000 1px;
 }
 
 /* --- Specific Chats --- */
 
 .to-remove-and-add {
   height: fit-content;
-  background-color: #ffa62b;
 }
 
 .specific-chat {
@@ -377,7 +377,7 @@ a.forgot-password { font-size: 15px; }
   top: 12px;
   height: 76px;
   width: 76px;
-  border: solid 3px #cccccc;
+  border: solid 2px #000000;
   border-radius: 50%;
 }
 

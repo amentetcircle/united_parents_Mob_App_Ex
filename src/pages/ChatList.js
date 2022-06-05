@@ -3,12 +3,14 @@ import React from "react";
 //Tim Finmans
 function start (){
     // will be called when the chat area is entered
+    document.addEventListener('keypress', keyPress);
+
     return(
         <div id="whole-chat-view" className="whole-chat">
             <div className="chat-list-box" id="chat-list-box">
                 {newChats.map(chat=>{
                     return(
-                        chat.addToViewOverview()
+                        chat.addToOverview()
                     )
                 })}
             </div>
@@ -16,11 +18,11 @@ function start (){
                 <div id="to-remove-and-add"></div>
             </div>
             <div className="input-wrapper">
-                <textarea id="input" className="input" title="wofür"></textarea>
-                <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
+                <textarea id="input" className="input"></textarea>
+                <button className="send-msg-btn-chat" >
                     <span className="material-icons">forum</span>
                 </button>
-                <button onClick={()=>newChats[7].addNotification()}>click</button>
+                <button onClick={()=>newChats[2].addNotification()}>click</button>
             </div>
         </div>
     );
@@ -36,7 +38,8 @@ class Chat {
     messages = [];
 
     // constructor to fill the variables
-    constructor(name, lastMessage, lastTimestemp, lastDate, messages) {
+    constructor(idReceiver, name, lastMessage, lastTimestemp, lastDate, messages) {
+        this.idReceiver = idReceiver;
         this.name = name;
         this.lastMessage = lastMessage;
         this.lastTimestamp = lastTimestemp;
@@ -49,9 +52,9 @@ class Chat {
     }
 
     // add the chats that were already opened and can be chosen from the array
-    addToViewOverview(){
+    addToOverview(){
         return (
-            <div id={this.name} className="chat-overview" onClick={()=>this.renderChat()}>
+            <div id={this.idReceiver} className="chat-overview" onClick={()=>this.renderChat()}>
                 <img className="round-image" src="https://i.pravatar.cc/200"></img>
                 <div className="text-wrapper-overview">
                     <p className="user-name">{this.name}</p>
@@ -65,11 +68,11 @@ class Chat {
     // render a specific chat when a chat was clicked
     renderChat(){
         //remove the notification
-        if(document.getElementById(this.name + "-notification") !== null) document.getElementById(this.name + "-notification").remove();
+        if(document.getElementById(this.idReceiver + "-notification") !== null) document.getElementById(this.idReceiver + "-notification").remove();
 
         // high lite this chat and un high light the previous one, if the previous one isn't this one
-        if(selectedChat !== null || selectedChat !== this) document.getElementById(selectedChat.name).style.backgroundColor = '#82C0CC';
-        document.getElementById(this.name).style.backgroundColor = '#cccccc';
+        if(selectedChat !== null && selectedChat !== this) document.getElementById(selectedChat.idReceiver).style.backgroundColor = '#82C0CC';
+        document.getElementById(this.idReceiver).style.backgroundColor = '#cccccc';
 
         // set the selected chat to this one
         selectedChat = this;
@@ -118,31 +121,40 @@ class Chat {
             chatWindow.appendChild(containerForMessage);
         })
 
+        //remove white bar
+        if(document.getElementById("white-bar"))document.getElementById("white-bar").remove();
+
         //create a white bar which will prevent the chat from being displayed directly at the chat containers border
         const whiteBar = document.createElement("div");
         whiteBar.id = "white-bar";
         whiteBar.className = "white-bar";
+
 
         // get the whole window and add the messages, white bar | scroll to the bottom of the container
         const wholeChatWindow = document.getElementById("chat-box");
         wholeChatWindow.appendChild(chatWindow);
         wholeChatWindow.appendChild(whiteBar);
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
+
+        // should also check if the textBox is already focused but doesn't do it
+        if(document.getElementById("input") !== document.activeElement) document.getElementById("input").focus()
     }
 
     sendMessage(text) {
         // return when the text ist empty
         if(text === "") return;
 
+        document.getElementById("input").value.val().replace(/\n/g, "");
+
         // swap chats when the selected chat isn't already at the first place
         if(newChats[0] !== selectedChat){
             // delete this Element from the overview
-            let thisOverview = document.getElementById(this.name)
-            document.getElementById(this.name).remove()
+            let thisOverview = document.getElementById(this.idReceiver)
+            document.getElementById(this.idReceiver).remove()
 
             // insert it in front of the first element of the view
             let toAddTo = document.getElementById("chat-list-box")
-            toAddTo.insertBefore(thisOverview, document.getElementById(newChats[0].name))
+            toAddTo.insertBefore(thisOverview, document.getElementById(newChats[0].idReceiver))
         }
 
         // sort the array => pull the chat that "wrote" a message on top
@@ -192,11 +204,21 @@ class Chat {
         const wholeChatWindow = document.getElementById("chat-box");
         wholeChatWindow.appendChild(whiteBar);
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
+
+        // scroll to the top of the chat overview when the message was send and the overview was moved to the top
+        document.getElementById("chat-list-box").scrollTop = 0;
+    }
+
+    receivedMessage() {
+        this.addNotification();
     }
 
     addNotification() {
-        if(document.getElementById(this.name + "-notification") !== null) {
-            let existingNotification = document.getElementById(this.name + "-notification")
+        // add nothing when the chat to be added is the selected chat
+        if(selectedChat === this) return;
+
+        if(document.getElementById(this.idReceiver + "-notification") !== null) {
+            let existingNotification = document.getElementById(this.idReceiver + "-notification")
             if(parseInt(existingNotification.textContent) > 98){
                 existingNotification.textContent = "99+";
             }
@@ -207,11 +229,19 @@ class Chat {
         }
         let notification = document.createElement("div");
         notification.className = "notification"
-        notification.id = this.name + "-notification"
+        notification.id = this.idReceiver + "-notification"
         notification.textContent = "1";
 
-        let overview = document.getElementById(this.name);
+        let overview = document.getElementById(this.idReceiver);
         overview.appendChild(notification)
+    }
+}
+
+// function for handling enter in the textarea
+function keyPress(e) {
+    if(e.keyCode === 13) {   // the data can just be initialized by null if the input is a space
+        selectedChat.sendMessage(document.getElementById("input").value)
+        e.preventDefault();
     }
 }
 
@@ -268,18 +298,18 @@ var newMessages2 = [new Message("Hey", "10:40", "s"),
     new Message("Fußball schauen und Bierchen trinken.", "10:44", "s"),
     new Message("Na das wollen wir ja mal sehen was da bei raus kommt.", "10:47", "s")]
 
-var newChats = [new Chat("Tim","Hi wie gehts?","10.07.2001","11:25", newMessages),
-    new Chat("Mennwin Oh man Oh men oh ah uh men","Hi wie gehts dir und deiner ganze Familie?","10.07.2001","11:25", newMessages2),
-    new Chat("Max","Drei Mal darfst du raten :)","10.07.2001","11:25", newMessages),
-    new Chat("Katharina","Übermorgen leider erst wieder","10.07.2001","11:25", newMessages),
-    new Chat("Martina","Hi wie gehts?","10.07.2001","11:25", newMessages),
-    new Chat("Thomas","Naja, das muss jetzt nicht zwingend sein aber wenn du willst.","10.07.2001","11:25", newMessages),
-    new Chat("Andreas","Hey","10.07.2001","11:25", newMessages),
-    new Chat("Herr Winkelmann","Völlig Normal!","10.07.2001","11:25", newMessages),
-    new Chat("Jason","Das kann ja wohl nicht sein?!","10.07.2001","11:25", newMessages)];
+var newChats = [new Chat("UID1","Tim","Hi wie gehts?","10.07.2001","11:25", newMessages),
+    new Chat("UID2","Mennwin Oh man Oh men oh ah uh men","Hi wie gehts dir und deiner ganze Familie?","10.07.2001","11:25", newMessages2),
+    new Chat("UID3","Max","Drei Mal darfst du raten :)","10.07.2001","11:25", newMessages),
+    new Chat("UID4","Katharina","Übermorgen leider erst wieder","10.07.2001","11:25", newMessages),
+    new Chat("UID5","Martina","Hi wie gehts?","10.07.2001","11:25", newMessages),
+    new Chat("UID6","Thomas","Naja, das muss jetzt nicht zwingend sein aber wenn du willst.","10.07.2001","11:25", newMessages),
+    new Chat("UID7","Andreas","Hey","10.07.2001","11:25", newMessages),
+    new Chat("UID8","Herr Winkelmann","Völlig Normal!","10.07.2001","11:25", newMessages),
+    new Chat("UID9","Jason","Das kann ja wohl nicht sein?!","10.07.2001","11:25", newMessages)];
 
 
 // store the selected chat
-var selectedChat = newChats[0];
+var selectedChat = null;
 
 export default start;
