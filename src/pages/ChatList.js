@@ -144,8 +144,6 @@ class Chat {
         // return when the text ist empty
         if(text === "") return;
 
-        document.getElementById("input").value.val().replace(/\n/g, "");
-
         // swap chats when the selected chat isn't already at the first place
         if(newChats[0] !== selectedChat){
             // delete this Element from the overview
@@ -238,10 +236,15 @@ class Chat {
 }
 
 // function for handling enter in the textarea
-function keyPress(e) {
-    if(e.keyCode === 13) {   // the data can just be initialized by null if the input is a space
-        selectedChat.sendMessage(document.getElementById("input").value)
-        e.preventDefault();
+function keyPress(evt) {
+    if (evt.keyCode === 13 && evt.shiftKey) {
+        if (evt.type === "keypress") {
+            selectedChat.sendMessage(document.getElementById("input").value)
+        }
+        evt.preventDefault();
+    }
+    if(evt.keyCode === 13) {
+
     }
 }
 
