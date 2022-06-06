@@ -22,7 +22,7 @@ function start (){
                 <button className="send-msg-btn-chat" >
                     <span className="material-icons">forum</span>
                 </button>
-                <button onClick={()=>newChats[2].addNotification()}>click</button>
+                <button onClick={()=>newChats[1].addNotification()}>click</button>
             </div>
         </div>
     );
