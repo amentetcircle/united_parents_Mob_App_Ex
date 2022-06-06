@@ -26,7 +26,6 @@ class HelpFinances extends Component {
         super(props);
         this.toggleEditMode = this.toggleEditMode.bind(this)
         this.updateDB = this.updateDB.bind(this)
-        // this.showToBeWritten = this.showToBeWritten.bind(this)
         this.state = {
             contentOfBoxes: [],
             _toBeWrittenToDB: {},
@@ -34,7 +33,6 @@ class HelpFinances extends Component {
             listOfKeys: []
         }
         this.updateContent = this.updateContent.bind(this)
-        // this.childMethodInParent = this.childMethodInParent.bind(this)
         this.receiveChildData = this.receiveChildData.bind(this)
     }
 
@@ -56,8 +54,6 @@ class HelpFinances extends Component {
                     contentOfBoxes: this._listOfNodes,
                     listOfKeys: this._listOfKeys
                 }, () => {
-                    // alert("keys: " + this.state.listOfKeys);
-                    alert("inhalt: " + JSON.stringify(this.state.contentOfBoxes, null, ' '))
                     this._listOfNodes = [];
                     this._listOfKeys = []
                 })
@@ -78,8 +74,6 @@ class HelpFinances extends Component {
     updateDB() {
         // submits the content that was prepared to be changed to the database
 
-        // alert("updatedb")
-        // alert(JSON.stringify(this.state._toBeWrittenToDB))
         try {
             update(ref(rtDatabase, 'Help'), this.state._toBeWrittenToDB).then(() => {
                 this.setState({
@@ -106,16 +100,10 @@ class HelpFinances extends Component {
     receiveChildData(args) {
         // updates this state with data prepared by the content boxes
         try {
-            // alert("receivechilddata: " + JSON.stringify(args))
             let _path = args[0]
-            // alert("path: " + _path)
             let _value = args[1]
-            // let _node = {[_path]: _value}
-            // alert("node: " + JSON.stringify(_node[_path]))
             let _listOfNode = {...this.state._toBeWrittenToDB}
-            // alert("listofnodes bei erstellung: " + JSON.stringify(_listOfNode))
             _listOfNode[_path] = _value
-            // alert("listofnodes nach änderung: " + JSON.stringify(_listOfNode))
             this.setState({
                 _toBeWrittenToDB: _listOfNode
             })
@@ -123,14 +111,6 @@ class HelpFinances extends Component {
             alert(e)
         }
     }
-
-    // childMethodInParent(childMethod) {
-    //     this.childMethod = childMethod
-    // }
-    //
-    // showToBeWritten() {
-    //     alert("in showtobewritten" + JSON.stringify(this.state._toBeWrittenToDB))
-    // }
 
     render() {
         const editToggled = this.state.editMode
@@ -140,27 +120,8 @@ class HelpFinances extends Component {
                 content={item.child('content').val()}
                 title={item.child('title').val()}
                 toggle={editToggled}
-                // triggerSubmit={this.childMethodInParent}
                 submitData={this.receiveChildData}
             />))
-        // const listOfInfoboxes = [
-        //     <InfoBox
-        //         path="content1"
-        //         content="Es gibt BAFöG."
-        //         title="Finanzielle Hilfen"
-        //         toggle={editToggled}
-        //         submitData={click => this.clickChild = click}
-        //         db ={this.db}
-        //     />,
-        //     <InfoBox
-        //         path="content2"
-        //         content="Das Familienbüro hilft dir gerne weiter."
-        //         title="Weitere Hilfen"
-        //         toggle={editToggled}
-        //         submitData={click => this.clickChild = click}
-        //         db ={this.db}
-        //     />
-        // ]
 
         return (
             <div>
@@ -177,20 +138,18 @@ class HelpFinances extends Component {
                 <br/><br/>
 
                 {listOfInfoboxes}
-                {editToggled ? <div>
-                    {/*<button className="help-button-save zip-button" onClick={() => this.receiveChildData}>Get Data</button>*/}
-                    {/*<button className="help-button save zip-button" onClick={() => this.childMethod()}>Get Data</button>*/}
-                    <button className="help-button save zip-button" type="submit"
-                            onClick={this.updateDB}>Speichern
-                    </button>
-                    {/*<button className="help-button save zip-button" onClick={this.showToBeWritten}>show</button>*/}
-                </div> : null}
+                {editToggled ?
+                    <div>
+                        <button className="help-button save zip-button" type="submit"
+                                onClick={this.updateDB}>Speichern
+                        </button>
+                    </div> : null}
             </div>);
     }
 }
 
 
-class InfoBox extends React.Component {
+export class InfoBox extends React.Component {
 
     constructor(props) {
         super(props);
@@ -199,7 +158,6 @@ class InfoBox extends React.Component {
             _title: "",
             _content: "",
         };
-        // this.submitChanges = this.submitChanges.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this)
         this.sendDataToParent = this.sendDataToParent.bind(this)
     }
@@ -210,78 +168,18 @@ class InfoBox extends React.Component {
         this.setState({
             _title: this.props.title, _content: this.props.content
         })
-        // this.updateContent()
-        // this.updateTitle()
-        // this.props.triggerSubmit(this.sendDataToParent)
     }
 
     sendDataToParent() {
         // passes the data that is to be submitted
         // to the database up to the parent
 
-        // alert("triggered in child" + this.path)
         let node = {
             "content": this.state._content,
             "title": this.state._title
         }
         this.props.submitData([this.path, node])
     }
-
-    /*deprecated*/
-    // updateContent() {
-    //     get(child(ref(this.props.db), "Help/" + this.path + "/content")).then((snapshot) => {
-    //         if (snapshot.exists()) {
-    //             this.setState(
-    //                 {
-    //                     content: snapshot.val()
-    //                 }
-    //             )
-    //         } else {
-    //             alert("No data available");
-    //         }
-    //     }).catch((error) => {
-    //         alert(error);
-    //     });
-    // }
-    //
-    // updateTitle() {
-    //     get(child(ref(this.props.db), "Help/" + this.path + "/title")).then((snapshot) => {
-    //         if (snapshot.exists()) {
-    //             this.setState(
-    //                 {
-    //                     title: snapshot.val()
-    //                 }
-    //             )
-    //         } else {
-    //             alert("No data available");
-    //         }
-    //     }).catch((error) => {
-    //         alert(error);
-    //     });
-    // }
-    //
-    // submitChanges() {
-    //     if (this.state._title !== '') {
-    //         this.setState({
-    //             title: this.state._title
-    //         })
-    //     }
-    //     if (this.state._content !== '') {
-    //         this.setState({
-    //             content: this.state._content
-    //         })
-    //     }
-    //     alert(this.state.title)
-    //     alert(this.state.content)
-    //
-    //     set(ref(rtDatabase, 'Help/' + this.path), {
-    //         title: this.state.title, content: this.state.content
-    //     }).then(() => {
-    //     });
-    //     this.setState({
-    //         _title: '', _content: ''
-    //     })
-    // }
 
     handleInputChange(event) {
         event.preventDefault()
@@ -299,32 +197,37 @@ class InfoBox extends React.Component {
 
         return (
             <div className="content-box help">
-                <div className="uni-logo help">
-                    <img src="./images/fra-uas-logo.svg" className="logo-img" alt="Fra-UAS"></img>
-                </div>
+                {this.props.title !== "" ?
+                    <div className="uni-logo help">
+                        <img src="./images/fra-uas-logo.svg" className="logo-img" alt="Fra-UAS"></img>
+                    </div> : null
+                }
 
                 {this.props.toggle ? <div className='popup'>
-                    <div>
-                        {/*<label>Neuer Titel:</label>*/}
-                        <input name="_title"
-                               value={this.state._title}
-                               onChange={this.handleInputChange}>
-                        </input>
-                    </div>
-                    <div>
-                        {/*<label>Neuer Inhalt:</label>*/}
+                        <div>
+                            <input name="_title"
+                                   value={this.state._title}
+                                   onChange={this.handleInputChange}>
+                            </input>
+                        </div>
+                        <div>
                         <textarea className="help-textarea"
                                   name="_content"
                                   value={this.state._content}
                                   onChange={this.handleInputChange}>
                                 </textarea>
-                    </div>
-                    <button className="help-button zip-button" type="submit" onClick={this.sendDataToParent}>Send Data
-                    </button>
-                </div> : <div>
-                    <h1 className="primary">{this.props.title}</h1>
-                    <p className="text help-p">{this.props.content}</p>
-                </div>}
+                        </div>
+                        <button className="help-button zip-button" type="submit" onClick={this.sendDataToParent}>Send Data
+                        </button>
+                    </div> :
+                    this.props.title !== "" ?
+                        <div>
+                            <h1 className="primary">{this.props.title}</h1>
+                            <p className="text help-p">{this.props.content}</p>
+                        </div> :
+                        <div>
+                            <p className="text help">{this.props.content}</p>
+                        </div>}
             </div>);
     }
 }
