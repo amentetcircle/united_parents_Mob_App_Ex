@@ -511,6 +511,18 @@ a.forgot-password { font-size: 15px; }
   position: relative;
   float: right;
   right: -25%;
+  top: -10px;
+  bottom: 50px;
+  height: 50px;
+  width: 50px;
+  border: transparent;
+  background-color: transparent;
+}
+
+/* todo: wrong position if no uni-logo image is shown*/
+.help-button-delete {
+  position: relative;
+  float: right;
   bottom: 50px;
   height: 50px;
   width: 50px;
