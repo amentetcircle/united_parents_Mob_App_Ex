@@ -493,6 +493,7 @@ a.forgot-password { font-size: 15px; }
 
 .help {
   text-align: center;
+  width: 75vw;
 }
 
 .help-p {
@@ -507,27 +508,28 @@ a.forgot-password { font-size: 15px; }
   transform: translateY(4px) translateX(2px);
 }
 
-.help-button-edit {
-  position: relative;
-  float: right;
-  right: -25%;
-  top: -10px;
-  bottom: 50px;
+.help-material-button {
   height: 50px;
   width: 50px;
   border: transparent;
   background-color: transparent;
 }
 
-/* todo: wrong position if no uni-logo image is shown*/
-.help-button-delete {
+.help-material-button:hover{
+  color: #ffa62b;
+}
+
+.edit {
   position: relative;
   float: right;
+  right: -25%;
+  top: -10px;
   bottom: 50px;
-  height: 50px;
-  width: 50px;
-  border: transparent;
-  background-color: transparent;
+}
+
+.delete {
+  float: right;
+  bottom: 50px;
 }
 
 .save {
@@ -536,6 +538,12 @@ a.forgot-password { font-size: 15px; }
   margin-left: 10px;
   right: -25%;
   top: -20px
+}
+
+.swap {
+  alignment: center;
+  right: -25%;
+  margin-bottom: 30px;
 }
 
 .help-textarea {

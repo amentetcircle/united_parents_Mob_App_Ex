@@ -36,8 +36,10 @@ export class EditablePage extends Component {
         }
         this.fetchContent = this.fetchContent.bind(this)
         this.receiveChildData = this.receiveChildData.bind(this)
+        this.checkIfNodeExists = this.checkIfNodeExists.bind(this)
         this.addToDB = this.addToDB.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.swapPosition = this.swapPosition.bind(this)
     }
 
     componentDidMount() {
@@ -76,51 +78,59 @@ export class EditablePage extends Component {
     }
 
     handleSubmit() {
+        if (Object.keys(this.state.toBeWrittenToDB).length !== 0 || this.state.toBeDeletedFromDB.length !== 0) {
 
-        // 1. setstate CoB w/ tbwDB
-        try {
-            let tempMap = {}
-            Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
-                // alert("in handlesubmit: " + key + ": " + JSON.stringify(value))
-                tempMap[key] = value
-            })
-            Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
-                // alert("in tbw: " + key + ": " + JSON.stringify(value))
-                tempMap[key] = value
-            })
-            // alert(JSON.stringify(tempMap))
+            // 1. setstate CoB w/ tbwDB
+            try {
+                let tempMap = {}
+                Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
+                    // alert("in handlesubmit: " + key + ": " + JSON.stringify(value))
+                    tempMap[key] = value
+                })
+                Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
+                    // alert("in tbw: " + key + ": " + JSON.stringify(value))
+                    tempMap[key] = value
+                })
+                // alert(JSON.stringify(tempMap))
 
-            // 2. delete tbd boxes in state
-            let tempMap2 = {}
-            Object.entries(tempMap).map(([key, value]) => {
-                // alert("in delete boxes: " + key + ": " + JSON.stringify(value))
-                if (this.state.toBeDeletedFromDB.indexOf(key) === -1) {
-                    // alert("keep" + key)
-                    tempMap2[key] = value
-                }
-            })
-            // alert(JSON.stringify(tempMap))
-
-            // 3. update content order in state CoB (taking out blank positions)
-            Object.entries(tempMap2)
-                .sort((a, b) => a[1]["position"] - b[1]["position"])
-                .forEach(([key, value], index) => {
-                    // alert(key + " <-key / index ->" + index)
-                    if (value["position"] !== (index + 1)) {
-                        value["position"] = (index + 1)
+                // 2. delete tbd boxes in state
+                let tempMap2 = {}
+                Object.entries(tempMap).map(([key, value]) => {
+                    // alert("in delete boxes: " + key + ": " + JSON.stringify(value))
+                    if (this.state.toBeDeletedFromDB.indexOf(key) === -1) {
+                        // alert("keep" + key)
+                        tempMap2[key] = value
                     }
                 })
+                // alert(JSON.stringify(tempMap))
 
-            // 3. update content in DB
-            set(ref(rtDatabase, this.path), tempMap2).then()
+                // 3. update content order in state CoB (taking out blank positions)
+                Object.entries(tempMap2)
+                    .sort((a, b) => a[1]["position"] - b[1]["position"])
+                    .forEach(([key, value], index) => {
+                        alert(key + " <-key / index ->" + index)
+                        if (value["position"] !== (index + 1)) {
+                            value["position"] = (index + 1)
+                        }
+                    })
+                alert(JSON.stringify(tempMap2))
+                // 3. update content in DB
+                set(ref(rtDatabase, this.path), tempMap2).then(() => {
+                    this.fetchContent()
+                    this.toggleEditMode()
+                })
 
-            // 5. remove unnecessary fields in DB
+                // 5. remove unnecessary fields in DB
+                // todo
 
-
-            this.fetchContent()
+                // this.fetchContent()
+                // this.toggleEditMode()
+            } catch (e) {
+                alert(e)
+            }
+        } else {
+            alert("nothing changed")
             this.toggleEditMode()
-        } catch (e) {
-            alert(e)
         }
     }
 
@@ -153,14 +163,52 @@ export class EditablePage extends Component {
         }
     }
 
+    checkIfNodeExists (position) {
+        return new Promise((resolve, _) => {
+            alert("position: " + position)
+            let _position = position
+            let _path = "content" + _position.toString()
+            try {
+                get(ref(rtDatabase, this.path + [_path.toString()])).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        alert(snapshot.key)
+                        _position++
+                        resolve(this.checkIfNodeExists(_position))
+                    } else {
+                        resolve(_position)
+                    }
+                })
+            } catch (e) {
+                alert(e)
+            }
+        })
+    }
+
     addToDB() {
         // submits the content of newly added content boxes to the database
         // alert(JSON.stringify(this.state.contentOfBoxes))
-        let _path = "content" + (this.state.listOfKeys.length * 2).toString()
-        let _value = {"content": "", "title": "", "position": (this.state.listOfKeys.length + 1)}
-        set(ref(rtDatabase, this.path + _path), _value).then(() => {
-            this.fetchContent()
-        })
+        // alert(this.state.listOfKeys)
+        try {
+            let _position = this.state.listOfKeys.length+1
+            this.checkIfNodeExists(_position).then((pos) => {
+                let _path = "content" + pos.toString()
+                alert(_path)
+                let _value = {"content": "", "title": "", "position": pos}
+                set(ref(rtDatabase, this.path + _path), _value).then(() => {
+                    this.fetchContent()
+                })
+            })
+        }catch (e) {
+            alert(e)
+        }
+    }
+
+    swapPosition(upperKey) {
+        alert(upperKey)
+        // todo something like :
+        // temp = upperkey
+        // upperkey = lowerkey
+        // lowerkey = upperkey
     }
 
     receiveChildData(node) {
@@ -197,25 +245,34 @@ export class EditablePage extends Component {
         let listOfInfoboxes = []
         Object.entries(this.state.contentOfBoxes)
             .sort((a, b) => a[1]["position"] - b[1]["position"])
-            .forEach(([key, value]) => (
+            .forEach(([key, value], index, array) => {
                     listOfInfoboxes.push(
-                        <InfoBox
-                            path={key}
-                            content={value['content']}
-                            title={value['title']}
-                            position={value['position']}
-                            toggle={editToggled}
-                            submitData={this.receiveChildData}
-                        />
+                        <div className="help">
+                            <InfoBox
+                                path={key}
+                                content={value['content']}
+                                title={value['title']}
+                                position={value['position']}
+                                toggle={editToggled}
+                                submitData={this.receiveChildData}
+                            />
+                            {
+                                editToggled && (index + 1) !== array.length ?
+                                <button className="help-material-button swap icons-container" onClick={() => this.swapPosition(key)}>
+                                    <span className="material-icons">swap_vert</span>
+                                </button>
+                                : null
+                            }
+                        </div>
                     )
-                )
+                }
             )
 
         return (
             <div>
                 <div>
                     {this.userIsAdmin ?
-                        <button className="help-button-edit icons-container" onClick={this.toggleEditMode}>
+                        <button className="help-material-button edit icons-container" onClick={this.toggleEditMode}>
                             <span className="material-icons">edit_note</span>
                         </button>
                         : null
@@ -227,7 +284,6 @@ export class EditablePage extends Component {
                 {listOfInfoboxes}
                 {editToggled ?
                     <div>
-                        {/*<button className="help-button save zip-button" onClick={this.updateDB}>Speichern</button>*/}
                         <button className="help-button save zip-button" onClick={this.handleSubmit}>Submit</button>
                         <button className="help-button save zip-button" onClick={this.addToDB}>noch ne Box</button>
                     </div> : null}
@@ -239,7 +295,6 @@ export class InfoBox extends React.Component {
 
     constructor(props) {
         super(props);
-        this.path = this.props.path
         this.state = {
             _title: "",
             _content: "",
@@ -260,13 +315,17 @@ export class InfoBox extends React.Component {
     sendDataToParent() {
         // passes the data that is to be submitted
         // to the database up to the parent
-
-        let node = {
-            "content": this.state._content,
-            "title": this.state._title,
-            "position": this.props.position
+    // todo: this is broken
+        try {
+            let node = {
+                "content": this.state._content,
+                "title": this.state._title,
+                "position": this.props.position
+            }
+            this.props.submitData({[this.props.path]: node})
+        } catch (e) {
+            alert(e)
         }
-        this.props.submitData({[this.path]: node})
     }
 
     deleteThis() {
@@ -292,17 +351,18 @@ export class InfoBox extends React.Component {
     render() {
 
         return (
-            <div className="content-box help">
+            <div className="content-box">
+                <h1>{this.props.path}</h1>
 
                 {this.props.title !== "" ?
-                    <div className="uni-logo help">
+                    <div className="uni-logo">
                         <img src="./images/fra-uas-logo.svg" className="logo-img" alt="Fra-UAS"></img>
                     </div> : null
                 }
 
                 {this.props.toggle ?
                     <div>
-                        <button className="help-button-delete icons-container" onClick={this.deleteThis}>
+                        <button className="help-material-button delete icons-container" onClick={this.deleteThis}>
                             <span className="material-icons">delete</span>
                         </button>
                         <div>
@@ -330,6 +390,7 @@ export class InfoBox extends React.Component {
                         <div>
                             <p className="text help">{this.props.content}</p>
                         </div>}
-            </div>);
+            </div>
+        );
     }
 }
