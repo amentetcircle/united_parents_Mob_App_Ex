@@ -108,7 +108,7 @@ export class EditablePage extends Component {
                 Object.entries(tempMap2)
                     .sort((a, b) => a[1]["position"] - b[1]["position"])
                     .forEach(([key, value], index) => {
-                        alert(key + " <-key / index ->" + index)
+                        // alert(key + " <-key / index ->" + index)
                         if (value["position"] !== (index + 1)) {
                             value["position"] = (index + 1)
                         }
@@ -165,13 +165,13 @@ export class EditablePage extends Component {
 
     checkIfNodeExists (position) {
         return new Promise((resolve, _) => {
-            alert("position: " + position)
+            // alert("position: " + position)
             let _position = position
             let _path = "content" + _position.toString()
             try {
                 get(ref(rtDatabase, this.path + [_path.toString()])).then((snapshot) => {
                     if (snapshot.exists()) {
-                        alert(snapshot.key)
+                        // alert(snapshot.key)
                         _position++
                         resolve(this.checkIfNodeExists(_position))
                     } else {
@@ -192,7 +192,7 @@ export class EditablePage extends Component {
             let _position = this.state.listOfKeys.length+1
             this.checkIfNodeExists(_position).then((pos) => {
                 let _path = "content" + pos.toString()
-                alert(_path)
+                // alert(_path)
                 let _value = {"content": "", "title": "", "position": pos}
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
                     this.fetchContent()
@@ -204,7 +204,7 @@ export class EditablePage extends Component {
     }
 
     swapPosition(upperKey) {
-        alert(upperKey)
+        alert("in progress, upper Key: " + upperKey)
         // todo something like :
         // temp = upperkey
         // upperkey = lowerkey
