@@ -1,7 +1,12 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import {auth, fsDatabase} from "../Firebase";
+import {useCollectionData} from "react-firebase-hooks/firestore";
+
+
 
 /**
- * TO DO: 
+ * TO DO:
  * get input PLZ, search it in the DB and present result
  * implement API for the radius
  *
@@ -19,9 +24,48 @@ function SearchUser() {
         }
     }
 
+    const q = query(collection(fsDatabase, "user"));
+    const [m] = useCollectionData(q, {uid: "id"});
+
+
+    function UserView(props) {
+        //get porperties from current document
+        const {email, userID} = props.message;
+        //check if message from current User
+        //const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
+        return (
+            <div className="column">
+                <div className="zip-result-card">
+                    {/* Catch corresponding user profile image from DB
+                            and link user to the corresponding user profile on click on the image
+                         */}
+                    <img className="circle-img" src="https://i.pravatar.cc/200"></img>
+                    {/* Catch corresponding user full name from DB  */}
+                    <h1>{email}</h1>
+                    {/* Catch corresponding user ZIP code from DB  */}
+                    <h2>{userID}</h2>
+                    {/* Link user to chat page with correspondinh user */}
+                    <button onClick={() => openChat(userID)} className="send-msg-btn">
+                        <span className="material-icons">forum</span>
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    function openChat(props){
+        const chatID = props + auth.currentUser.uid;
+        const div= document.getElementById("hs");
+        const heading = document.createElement("h1");
+        heading.textContent=chatID;
+        div.appendChild(heading);
+
+    }
+
+
+
     return (
         <div>
-            <div className="search-zip-container">
+            <div className="search-zip-container" id="hs">
                 <form id="zip-code">
                     <input
                         type="number"
@@ -61,6 +105,8 @@ function SearchUser() {
                 </div>
 
                 {/* Show this depending on the existing number of results */}
+                {m && m.map(msg => <UserView key={msg.id} message={msg}/>)}
+
                 <div className="zip-result-row">
                     <div className="column">
                         <div className="zip-result-card">
@@ -78,7 +124,7 @@ function SearchUser() {
                             </button>
                         </div>
                     </div>
-                    
+
                     <div className="column">
                         <div className="zip-result-card">
                             <img className="circle-img" src="https://i.pravatar.cc/200"></img>
@@ -127,5 +173,7 @@ function SearchUser() {
         </div>
     );
 }
+
+
 
 export default SearchUser;

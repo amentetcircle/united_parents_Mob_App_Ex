@@ -1,8 +1,12 @@
 import React, {useState} from "react";
 
+import  {fsDatabase, auth} from "../Firebase";
+import { getDatabase, ref, set } from "firebase/database";
+
 import {Form, Button, Card, Alert} from 'react-bootstrap'
 import {Link, useNavigate} from 'react-router-dom'
-import {useUserAuth} from "../context/UserAuthContext"
+import {createUserDocument, useUserAuth} from "../context/UserAuthContext"
+import {createUserWithEmailAndPassword} from "firebase/auth";
 
 /**
  * TODO: add the following to the form:
@@ -20,6 +24,7 @@ const Registration = () => {
         setEmail] = useState("")
     const [password,
         setPassword] = useState("")
+    const [displayName, setDisplayName] = useState("")
     const {register} = useUserAuth()
     const [error,
         setError] = useState("")
@@ -27,16 +32,22 @@ const Registration = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault()
-        setError("")
-        try {
-            await register(email, password)
-            navigate("/")
 
-        } catch (err) {
+        try {
+            const {user} = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+            await createUserDocument(user, {displayName});
+            navigate("/")
+        }catch (err) {
             setError(err.message);
 
         }
     }
+
+
 
     return (
         <div className="login-container">

@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 //Max
 import {getFirestore} from 'firebase/firestore'
+//const admin = require('firebase-admin');
 
 
 const firebaseConfig = {
@@ -24,5 +25,9 @@ export const auth = getAuth(app)
 export const rtDatabase = getDatabase(app);
 //Max
 export const fsDatabase = getFirestore();
+
+//export const adminAuth = admin.auth()
+
+
 
 export default app;
