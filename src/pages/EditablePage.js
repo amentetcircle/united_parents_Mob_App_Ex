@@ -114,14 +114,12 @@ export class EditablePage extends Component {
                         }
                     })
                 alert(JSON.stringify(tempMap2))
-                // 3. update content in DB
+                // 4. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
                     this.fetchContent()
                     this.toggleEditMode()
                 })
 
-                // 5. remove unnecessary fields in DB
-                // todo
 
                 // this.fetchContent()
                 // this.toggleEditMode()
@@ -134,6 +132,7 @@ export class EditablePage extends Component {
         }
     }
 
+    /* deprecated*/
     updateDB() {
         // submits the content that was prepared to be changed to the database
         alert(JSON.stringify(this.state.toBeWrittenToDB))
@@ -163,7 +162,7 @@ export class EditablePage extends Component {
         }
     }
 
-    checkIfNodeExists (position) {
+    checkIfNodeExists(position) {
         return new Promise((resolve, _) => {
             // alert("position: " + position)
             let _position = position
@@ -189,7 +188,7 @@ export class EditablePage extends Component {
         // alert(JSON.stringify(this.state.contentOfBoxes))
         // alert(this.state.listOfKeys)
         try {
-            let _position = this.state.listOfKeys.length+1
+            let _position = this.state.listOfKeys.length + 1
             this.checkIfNodeExists(_position).then((pos) => {
                 let _path = "content" + pos.toString()
                 // alert(_path)
@@ -198,17 +197,42 @@ export class EditablePage extends Component {
                     this.fetchContent()
                 })
             })
-        }catch (e) {
+        } catch (e) {
             alert(e)
         }
     }
 
     swapPosition(upperKey) {
-        alert("in progress, upper Key: " + upperKey)
-        // todo something like :
-        // temp = upperkey
-        // upperkey = lowerkey
-        // lowerkey = upperkey
+        // alert("in progress, upper Key: " + upperKey)
+        // alert(JSON.stringify(this.state.contentOfBoxes))
+        try {
+            let tempList = Object.entries(this.state.contentOfBoxes).map((entry) => entry)
+            // alert("vorher: " + JSON.stringify(tempList))
+            tempList.sort((a, b) => a[1]["position"] - b[1]["position"])
+                .forEach(([key, val], index, array) => {
+                    // alert("in foreach: {" + key + ": " + JSON.stringify(val) + "}")
+                    if (key === upperKey) {
+                        // alert("next: " + array[index + 1])
+                        let tempUpperPosition = val.position
+                        // alert(tempLower)
+                        val.position = array[index + 1][1].position
+                        array[index + 1][1].position = tempUpperPosition
+                    }
+                })
+
+            // alert("nachher: " + JSON.stringify(tempList))
+            let tempState = {}
+            tempList.forEach(([key, val]) => {
+                tempState[key] = val
+            })
+            // alert("tempstate: " + JSON.stringify(tempState))
+            this.setState({
+                contentOfBoxes: tempState
+            })
+        } catch
+            (e) {
+            alert(e)
+        }
     }
 
     receiveChildData(node) {
@@ -257,11 +281,12 @@ export class EditablePage extends Component {
                                 submitData={this.receiveChildData}
                             />
                             {
-                                editToggled && (index + 1) !== array.length ?
-                                <button className="help-material-button swap icons-container" onClick={() => this.swapPosition(key)}>
-                                    <span className="material-icons">swap_vert</span>
-                                </button>
-                                : null
+                                this.userIsAdmin && !editToggled && (index + 1) !== array.length ?
+                                    <button className="help-material-button swap icons-container"
+                                            onClick={() => this.swapPosition(key)}>
+                                        <span className="material-icons">swap_vert</span>
+                                    </button>
+                                    : null
                             }
                         </div>
                     )
@@ -291,7 +316,7 @@ export class EditablePage extends Component {
     }
 }
 
-export class InfoBox extends React.Component {
+export class InfoBox extends Component {
 
     constructor(props) {
         super(props);
@@ -315,7 +340,7 @@ export class InfoBox extends React.Component {
     sendDataToParent() {
         // passes the data that is to be submitted
         // to the database up to the parent
-    // todo: this is broken
+
         try {
             let node = {
                 "content": this.state._content,
