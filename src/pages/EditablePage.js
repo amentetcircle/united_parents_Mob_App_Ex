@@ -24,22 +24,24 @@ export class EditablePage extends Component {
 
     constructor(props) {
         super(props);
-        this.toggleEditMode = this.toggleEditMode.bind(this)
-        this.updateDB = this.updateDB.bind(this)
         this.path = props.path
         this.state = {
             contentOfBoxes: {},
             toBeWrittenToDB: {},
             toBeDeletedFromDB: [],
             editMode: false,
-            listOfKeys: []
+            submitDisabled: true,
+            listOfKeys: [],
         }
         this.fetchContent = this.fetchContent.bind(this)
+        this.toggleEditMode = this.toggleEditMode.bind(this)
         this.receiveChildData = this.receiveChildData.bind(this)
         this.checkIfNodeExists = this.checkIfNodeExists.bind(this)
+        this.updateDB = this.updateDB.bind(this)
         this.addToDB = this.addToDB.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.swapPosition = this.swapPosition.bind(this)
+        this.abortChanges = this.abortChanges.bind(this)
     }
 
     componentDidMount() {
@@ -73,7 +75,8 @@ export class EditablePage extends Component {
 
     toggleEditMode() {
         this.setState({
-            editMode: !this.state.editMode
+            editMode: !this.state.editMode,
+            submitDisabled: true,
         });
     }
 
@@ -113,16 +116,13 @@ export class EditablePage extends Component {
                             value["position"] = (index + 1)
                         }
                     })
-                alert(JSON.stringify(tempMap2))
+                // alert(JSON.stringify(tempMap2))
                 // 4. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
                     this.fetchContent()
                     this.toggleEditMode()
                 })
 
-
-                // this.fetchContent()
-                // this.toggleEditMode()
             } catch (e) {
                 alert(e)
             }
@@ -162,6 +162,14 @@ export class EditablePage extends Component {
         }
     }
 
+    abortChanges() {
+        this.setState({
+            toBeWrittenToDB: {},
+            toBeDeletedFromDB: [],
+        })
+        this.toggleEditMode()
+    }
+
     checkIfNodeExists(position) {
         return new Promise((resolve, _) => {
             // alert("position: " + position)
@@ -195,6 +203,7 @@ export class EditablePage extends Component {
                 let _value = {"content": "", "title": "", "position": pos}
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
                     this.fetchContent()
+                    this.toggleEditMode()
                 })
             })
         } catch (e) {
@@ -250,13 +259,15 @@ export class EditablePage extends Component {
                 if (_listOfNode.indexOf(_path) === -1)
                     _listOfNode.push(_path)
                 this.setState({
-                    toBeDeletedFromDB: _listOfNode
+                    toBeDeletedFromDB: _listOfNode,
+                    submitDisabled: false
                 })
             } else { // todo: check if present in tbdeleted -> remove there
                 let _listOfNode = {...this.state.toBeWrittenToDB}
                 _listOfNode[_path] = _value
                 this.setState({
-                    toBeWrittenToDB: _listOfNode
+                    toBeWrittenToDB: _listOfNode,
+                    submitDisabled: false
                 })
             }
         } catch (e) {
@@ -271,21 +282,27 @@ export class EditablePage extends Component {
             .sort((a, b) => a[1]["position"] - b[1]["position"])
             .forEach(([key, value], index, array) => {
                     listOfInfoboxes.push(
-                        <div className="help">
+                        <div className="editable">
                             <InfoBox
                                 path={key}
                                 content={value['content']}
                                 title={value['title']}
                                 position={value['position']}
-                                toggle={editToggled}
+                                toggle={this.state.editMode}
                                 submitData={this.receiveChildData}
                             />
                             {
-                                this.userIsAdmin && !editToggled && (index + 1) !== array.length ?
-                                    <button className="help-material-button swap icons-container"
-                                            onClick={() => this.swapPosition(key)}>
-                                        <span className="material-icons">swap_vert</span>
-                                    </button>
+                                this.userIsAdmin && !editToggled ?
+                                    (index + 1) !== array.length ?
+                                        <button className="editable-material-button swap icons-container"
+                                                onClick={() => this.swapPosition(key)}>
+                                            <span className="material-icons">swap_vert</span>
+                                        </button>
+                                        :
+                                        <button className="editable-material-button swap icons-container"
+                                                onClick={this.addToDB}>
+                                            <span className="material-icons">add_box</span>
+                                        </button>
                                     : null
                             }
                         </div>
@@ -297,7 +314,17 @@ export class EditablePage extends Component {
             <div>
                 <div>
                     {this.userIsAdmin ?
-                        <button className="help-material-button edit icons-container" onClick={this.toggleEditMode}>
+                        <button className="editable-material-button edit icons-container" onClick={() => {
+                            if (editToggled) {
+                                if (window.confirm("Änderungen speichern?")) {
+                                    this.handleSubmit()
+                                } else {
+                                    this.abortChanges()
+                                }
+                            } else {
+                                this.toggleEditMode()
+                            }
+                        }}>
                             <span className="material-icons">edit_note</span>
                         </button>
                         : null
@@ -309,9 +336,21 @@ export class EditablePage extends Component {
                 {listOfInfoboxes}
                 {editToggled ?
                     <div>
-                        <button className="help-button save zip-button" onClick={this.handleSubmit}>Submit</button>
-                        <button className="help-button save zip-button" onClick={this.addToDB}>noch ne Box</button>
-                    </div> : null}
+                        {this.state.submitDisabled ?
+                            <button className="save zip-button" disabled
+                            >Änderungen übernehmen
+                            </button>
+                            :
+                            <button className="editable-button save zip-button" onClick={this.handleSubmit}>Änderungen
+                                übernehmen
+                            </button>
+                        }
+                        <button className="editable-button save zip-button"
+                                onClick={this.abortChanges}>Abbrechen
+                        </button>
+                    </div>
+                    : null
+                }
             </div>);
     }
 }
@@ -323,6 +362,8 @@ export class InfoBox extends Component {
         this.state = {
             _title: "",
             _content: "",
+            deleteCheck: false,
+            sentCheck: false
         };
         this.handleInputChange = this.handleInputChange.bind(this)
         this.sendDataToParent = this.sendDataToParent.bind(this)
@@ -330,11 +371,21 @@ export class InfoBox extends Component {
     }
 
     componentDidMount() {
-        // setting state here instead of directly in the constructor avoids the need
-        // to refresh the page after an update to the database was made
         this.setState({
-            _title: this.props.title, _content: this.props.content
+            _title: this.props.title,
+            _content: this.props.content,
         })
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.toggle !== prevProps.toggle) {
+            this.setState({
+                _title: this.props.title,
+                _content: this.props.content,
+                deleteCheck: false,
+                sentCheck: false
+            })
+        }
     }
 
     sendDataToParent() {
@@ -356,7 +407,8 @@ export class InfoBox extends Component {
     deleteThis() {
         this.setState({
             _content: "",
-            _title: ""
+            _title: "",
+            deleteCheck: true
         }, () => this.sendDataToParent())
 
     }
@@ -377,7 +429,7 @@ export class InfoBox extends Component {
 
         return (
             <div className="content-box">
-                <h1>{this.props.path}</h1>
+                {/*<h1>{this.props.path}</h1>*/}
 
                 {this.props.title !== "" ?
                     <div className="uni-logo">
@@ -387,9 +439,16 @@ export class InfoBox extends Component {
 
                 {this.props.toggle ?
                     <div>
-                        <button className="help-material-button delete icons-container" onClick={this.deleteThis}>
-                            <span className="material-icons">delete</span>
-                        </button>
+                        {this.state.deleteCheck ?
+                            <button className="editable-material-button delete icons-container"
+                                    onClick={this.deleteThis}>
+                                <span className="material-icons overlay-check">done</span>
+                                <span className="material-icons">delete</span>
+                            </button> :
+                            <button className="editable-material-button delete icons-container"
+                                    onClick={this.deleteThis}>
+                                <span className="material-icons">delete</span>
+                            </button>}
                         <div>
                             <input name="_title"
                                    value={this.state._title}
@@ -397,25 +456,33 @@ export class InfoBox extends Component {
                             </input>
                         </div>
                         <div>
-                        <textarea className="help-textarea"
+                        <textarea className="editable-textarea"
                                   name="_content"
                                   value={this.state._content}
                                   onChange={this.handleInputChange}>
                                 </textarea>
                         </div>
-                        <button className="help-button zip-button" type="submit" onClick={this.sendDataToParent}>Send
-                            Data
-                        </button>
+                        {this.state.sentCheck ?
+                            <button className="editable-material-button icons-container" type="submit"
+                                    onClick={this.sendDataToParent}>
+                                <span className="material-icons check">task_alt</span>
+                            </button> :
+                            <button className="editable-button zip-button" type="submit" onClick={() => {
+                                this.sendDataToParent();
+                                this.setState({sentCheck: true})
+                            }}>Send Data
+                            </button>}
                     </div> :
                     this.props.title !== "" ?
                         <div>
                             <h1 className="primary">{this.props.title}</h1>
-                            <p className="text help-p">{this.props.content}</p>
+                            <p className="text editable-p">{this.props.content}</p>
                         </div> :
                         <div>
-                            <p className="text help">{this.props.content}</p>
+                            <p className="text editable">{this.props.content}</p>
                         </div>}
             </div>
+
         );
     }
 }
