@@ -154,6 +154,9 @@ class Chat {
     }
 
     sendMessage(text) {
+        const textField = document.getElementById("input")
+        textField.textContent = ""
+
         // return when the text ist empty
         if(text === "") return;
 
@@ -309,7 +312,7 @@ const EmojiHandling = () => {
     const onEmojiClick = (event, emojiObject) => {
         setChosenEmoji(emojiObject);
         const textField = document.getElementById("input")
-        textField.textContent = textField.textContent + emojiObject.emoji
+        textField.textContent = textField.textContent + emojiObject.emoji + "awd"
     };
 
     return (
