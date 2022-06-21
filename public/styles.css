@@ -503,34 +503,34 @@ a.forgot-password { font-size: 15px; }
 }
 
 
-/*-----------Help&Finances Content----------------*/
+/*-----------Editable Content----------------*/
 /* all changes in this section by Katharina Zirkler */
 
-.help {
+.editable {
   text-align: center;
   width: 75vw;
 }
 
-.help-p {
+.editable-p {
   margin-top: 16px;
   line-height: 1.5;
   text-align: left;
 }
 
-.help-button:active {
+.editable-button:active {
   background-color: #489fb5;
   box-shadow: 0 5px #cccccc;
   transform: translateY(4px) translateX(2px);
 }
 
-.help-material-button {
+.editable-material-button {
   height: 50px;
   width: 50px;
   border: transparent;
   background-color: transparent;
 }
 
-.help-material-button:hover{
+.editable-material-button:hover{
   color: #ffa62b;
 }
 
@@ -555,13 +555,17 @@ a.forgot-password { font-size: 15px; }
   top: -20px
 }
 
-.swap {
-  alignment: center;
-  right: -25%;
-  margin-bottom: 30px;
+.save:disabled {
+  background-color: #cccccc;
 }
 
-.help-textarea {
+.swap {
+  position: relative;
+  alignment: center;
+  top: -15px;
+}
+
+.editable-textarea {
   caret-color: black;
   width: 90%;
   height: 300px;
@@ -569,6 +573,17 @@ a.forgot-password { font-size: 15px; }
   border: 1px solid #cccccc;
   padding: 0.5em;
   font-family: Tahoma, sans-serif;
+}
+
+.check {
+  color: #ffa62b;
+}
+
+.overlay-check {
+  color: #ffa62b;
+  position: absolute;
+  vertical-align: bottom;
+  horiz-align: right;
 }
 
 
