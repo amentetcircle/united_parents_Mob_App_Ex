@@ -41,7 +41,7 @@ var codesForUI = [1];
 class Chat {
     idReceiver;
     name;
-    lastMessage;    // will be unnecessary in the future because it can be gained by taking the arrays last element
+    lastMessage;    // will be unnecessary in the future because it can be gained by taking the arrays last element Test
     lastDate;
     messages = [];
     codeForUI;
