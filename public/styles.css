@@ -454,11 +454,11 @@ a.forgot-password { font-size: 15px; }
   position: relative;
   float: left;
   resize: none;
-  width: 80%;
+  width:70%;
   height: 80px;
   overflow: hidden;
   overflow-y: scroll;
-  padding: 10px;
+  padding: 10px 60px 10px 10px;
   background-color: #fdfdfc;
   border-radius: 4px;
   border: solid #cccccc 2px;
@@ -472,12 +472,19 @@ a.forgot-password { font-size: 15px; }
 .send-msg-btn-chat {
   position: relative;
   float: left;
-  top: 15px;
-  left: 7%;
+  left: 8%;
+  top: 20px;
   border-radius: 12px;
   border: transparent;
   background-color: #489fb5;
   box-shadow: 0 2px 2px #cccccc;
+}
+
+.open-emoji {
+  padding: 0;
+  margin-left: 2%;
+  width: 36px;
+  height: 39px;
 }
 
 .send-msg-btn-chat .material-icons {
@@ -488,34 +495,42 @@ a.forgot-password { font-size: 15px; }
 }
 
 
-/*-----------Editable Content----------------*/
+
+.emoji-picker-wrapper {
+  position: sticky;
+  visibility: hidden;
+  top: 130px;
+}
+
+
+/*-----------Help&Finances Content----------------*/
 /* all changes in this section by Katharina Zirkler */
 
-.editable {
+.help {
   text-align: center;
   width: 75vw;
 }
 
-.editable-p {
+.help-p {
   margin-top: 16px;
   line-height: 1.5;
   text-align: left;
 }
 
-.editable-button:active {
+.help-button:active {
   background-color: #489fb5;
   box-shadow: 0 5px #cccccc;
   transform: translateY(4px) translateX(2px);
 }
 
-.editable-material-button {
+.help-material-button {
   height: 50px;
   width: 50px;
   border: transparent;
   background-color: transparent;
 }
 
-.editable-material-button:hover{
+.help-material-button:hover{
   color: #ffa62b;
 }
 
@@ -540,17 +555,13 @@ a.forgot-password { font-size: 15px; }
   top: -20px
 }
 
-.save:disabled {
-  background-color: #cccccc;
-}
-
 .swap {
-  position: relative;
   alignment: center;
-  top: -15px;
+  right: -25%;
+  margin-bottom: 30px;
 }
 
-.editable-textarea {
+.help-textarea {
   caret-color: black;
   width: 90%;
   height: 300px;
@@ -558,17 +569,6 @@ a.forgot-password { font-size: 15px; }
   border: 1px solid #cccccc;
   padding: 0.5em;
   font-family: Tahoma, sans-serif;
-}
-
-.check {
-  color: #ffa62b;
-}
-
-.overlay-check {
-  color: #ffa62b;
-  position: absolute;
-  vertical-align: bottom;
-  horiz-align: right;
 }
 
 
