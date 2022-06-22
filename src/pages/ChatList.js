@@ -1,15 +1,230 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {Link, Route, useNavigate} from 'react-router-dom'
+import "firebase/compat/firestore";
+import "firebase/compat/auth";
+import  {fsDatabase, auth, adminAuth} from "../Firebase";
+import {collection, query, where, getDocs, addDoc, doc, getDoc, setDoc, onSnapshot} from "firebase/firestore";
+import {useCollectionData} from "react-firebase-hooks/firestore";
+import {forEach} from "react-bootstrap/ElementChildren";
+import firebase from "firebase/compat/app";
+
+
+
+/*export const streamMessages = (chatID, snapshot, error) =>{
+    const messagesRefNew = collection(fsDatabase, "messages");
+    const qMes = query(messagesRefNew, where("chatID", "==", chatID));
+    return onSnapshot(qMes, snapshot, error)
+}*/
+
+
+
 
 //Tim Finmans
-function start (){
+function Start() {
     // will be called when the chat area is entered
     document.addEventListener('keypress', keyPress);
 
-    return(
+    //Maximilian Fay Not fully functional part
+   /*
+    const [newMessage, setNewMessage] = useState("");
+    const [chatIDGlob, setChatIDGlob] = useState("");
+    //fetch chats
+    const chatsRef = collection(fsDatabase, "chats");
+    const q1 = query(chatsRef, where("ID1", "==", auth.currentUser.uid))
+    const messagesRef = collection(fsDatabase, "messages");
+    /*const unsubscribe = onSnapshot(q1,(querySnapshot) =>{
+        newChats.pop();
+        querySnapshot.forEach((doc)=>{
+            newChats.push(new Chat("ID2", doc.data().ID2, "Hey", "01.01.2001", "01.01.2000", null));
+        })
+    });
+    const [m1] = useCollectionData(q1, {uid: "id"});
+    const q2 = query(chatsRef, where("ID2", "==",auth.currentUser.uid));
+    const [m2] = useCollectionData(q2, {uid: "id"});
+
+   /* async function LoadingChats() {
+
+        const querySnapshot1 = await getDocs(q1);
+        newChats = [];
+        querySnapshot1.forEach((doc) => {
+            const newMessageArray = OpenChat(doc.data().chatID);
+            newChats.push(new Chat("ID2", doc.data().ID2, "Hey", "01.01.2001", "01.01.2000", newMessageArray));
+
+        })
+        const querySnapshot2 = await getDocs(q2);
+
+        querySnapshot2.forEach((doc) => {
+            const newMessageArray = OpenChat(doc.data().chatID);
+            newChats.push(new Chat("ID1", doc.data().ID1, "Hey", "01.01.2001", "01.01.2000", newMessageArray))
+
+        })
+    }
+
+
+
+    const sendMessage = async (e) => {
+        e.preventDefault();
+        //const auth = getAuth();
+        //get current user object
+        const user = auth.currentUser
+
+
+        //add document to collection
+        await addDoc(messagesRef, {
+            text: newMessage,
+            sender_uid: user.uid,
+            chatID:chatIDGlob,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+
+        setNewMessage("");
+
+    }
+
+    function ChatMessage(props) {
+        //get porperties from current document
+        const {text, sender_uid} = props.message;
+        //check if message from current User
+        const messageTyp = sender_uid === auth.currentUser.uid ? "sent" : "received";
+
+        // const element = document.getElementById("messageInput");
+        // element.scrollIntoView()
+        window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: "auto" });    // scrolls down when a new message is added but not when the chat ist loaded. Don't know why at the moment
+
+        if(messageTyp === "sent") {  //{createdAt.toString()}
+            return (
+                <div className="message sender">
+                    <p className="message-text">
+                        {text} , {messageTyp}, {sender_uid}
+                    </p>
+                    <p className="timestemp-chat">
+                        18
+                    </p>
+                </div>
+            );
+        } else if(messageTyp === "received") {   //{createdAt.toString()}
+            return (
+                <div className="message">
+                    <p className="message-text">
+                        {text} , {messageTyp}, {sender_uid}
+                    </p>
+                    <p className="timestemp-chat">
+                        18
+                    </p>
+                </div>
+            );
+            {mMes && mMes.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+        }
+    }
+
+
+
+        //chatIDMes = useCollectionData(query(collection(fsDatabase, "messages"),where("chatID", "==", chatID)))
+
+        //qMes = query(messagesRef, where("chatID", "==", chatID));
+        //const [mMes] = useCollectionData(qMes, {uid: "id"});
+
+        const snapshot = await getDocs(qMes);
+        snapshot.forEach((doc) => {
+            const messageTyp = doc.data().sender_uid === auth.currentUser.uid ? 's' : 'r';
+
+            newMessages.push(new Message(doc.data().text,"doc.data().createdAt.toString()", messageTyp));
+
+        })
+        return newMessages
+
+
+    function GetChatsID(props){
+
+        const {ID2, chatID} = props.message;
+        //chatIDMes = chatID
+        //newChats.push(new Chat("ID2", chatID, "Hey","01.01.2001","01.01.2000", newMessages))
+        //setChatIDGlob(chatID);
+        return(
+
+            <li>
+                <h1>
+                    {ID2}
+                </h1>
+                <button className="send-msg-btn" onClick={setID(chatID)}>
+                    <span className="material-icons">forum</span>
+                </button>
+
+                <OpenChat{...{chatID}}></OpenChat>
+            </li>
+
+        );
+
+    }
+
+    function GetChatsID2(props) {
+        const {ID1, chatID} = props.message;
+        //chatIDMes = chatID
+        return(
+
+            <li>
+                <h1>
+                    {ID1}
+                </h1>
+                <button className="send-msg-btn">
+                    <span className="material-icons">forum</span>
+                </button>
+
+            </li>
+
+        );
+    }
+
+    function OpenChat(props) {
+        const {chatID} = props;
+        const [messages, setMessages] = useState([]);
+        const [error, setError] = useState();
+
+        useEffect(() => {
+                const unsubscribe = streamMessages(chatID, (querySnapshot) => {
+                        const updateMessageItem = querySnapshot.docs.map(docSnapshot => docSnapshot.data());
+                        setMessages(updateMessageItem);
+                    },
+                    (error) => setError('Load Messages failed')
+                );
+                return unsubscribe;
+            }, [chatID, setMessages]
+        );
+
+        const MessageElements = messages.map((m, i) => <div key={i}>{m.text}</div>)
+
+        return (
+            <div>
+                <di>{MessageElements}</di>
+            </div>
+        );
+    }
+
+    function ShowChat(props) {
+        const newChat = props;
+        return(
+            <div>
+                <OpenChat{...{newChat}}></OpenChat>
+            </div>
+
+        )
+    }
+
+    {m1 && m1.map(chat => <GetChatsID key={chat.id} message={chat}/>)}
+            {m2 && m2.map(chat => <GetChatsID key={chat.id} message={chat}/>)}
+            <textarea className="input" id="input" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}/>
+            <button className="send-msg-btn" onClick={sendMessage}>
+                <span className="material-icons">forum</span>
+            </button>
+    */
+//Maximilian Fay Not fully functional
+
+    return (
+
         <div id="whole-chat-view" className="whole-chat">
             <div className="chat-list-box" id="chat-list-box">
-                {newChats.map(chat=>{
-                    return(
+                {newChats.map(chat => {
+                    return (
                         chat.addToOverview()
                     )
                 })}
@@ -19,13 +234,14 @@ function start (){
             </div>
             <div className="input-wrapper">
                 <textarea id="input" className="input"></textarea>
-                <button className="send-msg-btn-chat" >
+                <button className="send-msg-btn-chat">
                     <span className="material-icons">forum</span>
                 </button>
-                <button onClick={()=>newChats[1].addNotification()}>click</button>
+                <button onClick={() => newChats[1].addNotification()}>click</button>
             </div>
         </div>
     );
+
 }
 
 //Tim Finmans
@@ -315,4 +531,4 @@ var newChats = [new Chat("UID1","Tim","Hi wie gehts?","10.07.2001","11:25", newM
 // store the selected chat
 var selectedChat = null;
 
-export default start;
+export default Start;
