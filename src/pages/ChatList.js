@@ -1,16 +1,7 @@
+import Picker from "emoji-picker-react";
 import React, {useState} from "react";
-import EmojiPicker from "emoji-picker-react";
-import Picker from 'emoji-picker-react';
-import React, {useEffect, useState} from "react";
-import {Link, Route, useNavigate} from 'react-router-dom'
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
-import  {fsDatabase, auth, adminAuth} from "../Firebase";
-import {collection, query, where, getDocs, addDoc, doc, getDoc, setDoc, onSnapshot} from "firebase/firestore";
-import {useCollectionData} from "react-firebase-hooks/firestore";
-import {forEach} from "react-bootstrap/ElementChildren";
-import firebase from "firebase/compat/app";
-
 
 
 /*export const streamMessages = (chatID, snapshot, error) =>{
@@ -263,11 +254,11 @@ class Chat {
     codeForUI;
 
     // constructor to fill the variables
-    constructor(idReceiver, name, lastMessage, lastDate, messages) {
+    constructor(idReceiver, name, lastMessage, lastDate, messages, lastTimestamp) {
         this.idReceiver = idReceiver;
         this.name = name;
         this.lastMessage = lastMessage;
-        this.lastTimestamp = lastTimestemp;
+        this.lastTimestamp = lastTimestamp;
         this.lastDate = lastDate;
         this.codeForUI = codesForUI[codesForUI.length - 1] + 1;
         codesForUI.push(codesForUI[codesForUI.length - 1] + 1);
