@@ -254,11 +254,10 @@ class Chat {
     codeForUI;
 
     // constructor to fill the variables
-    constructor(idReceiver, name, lastMessage, lastDate, messages, lastTimestamp) {
+    constructor(idReceiver, name, lastMessage, lastDate, messages) {
         this.idReceiver = idReceiver;
         this.name = name;
         this.lastMessage = lastMessage;
-        this.lastTimestamp = lastTimestamp;
         this.lastDate = lastDate;
         this.codeForUI = codesForUI[codesForUI.length - 1] + 1;
         codesForUI.push(codesForUI[codesForUI.length - 1] + 1);
