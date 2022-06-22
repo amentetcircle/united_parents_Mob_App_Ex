@@ -454,11 +454,11 @@ a.forgot-password { font-size: 15px; }
   position: relative;
   float: left;
   resize: none;
-  width: 80%;
+  width:70%;
   height: 80px;
   overflow: hidden;
   overflow-y: scroll;
-  padding: 10px;
+  padding: 10px 60px 10px 10px;
   background-color: #fdfdfc;
   border-radius: 4px;
   border: solid #cccccc 2px;
@@ -472,12 +472,19 @@ a.forgot-password { font-size: 15px; }
 .send-msg-btn-chat {
   position: relative;
   float: left;
-  top: 15px;
-  left: 7%;
+  left: 8%;
+  top: 20px;
   border-radius: 12px;
   border: transparent;
   background-color: #489fb5;
   box-shadow: 0 2px 2px #cccccc;
+}
+
+.open-emoji {
+  padding: 0;
+  margin-left: 2%;
+  width: 36px;
+  height: 39px;
 }
 
 .send-msg-btn-chat .material-icons {
@@ -485,6 +492,14 @@ a.forgot-password { font-size: 15px; }
   font-size: 24px;
   padding-top: 5px;
   color: #fff;
+}
+
+
+
+.emoji-picker-wrapper {
+  position: sticky;
+  visibility: hidden;
+  top: 130px;
 }
 
 

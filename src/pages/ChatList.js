@@ -1,3 +1,6 @@
+import React, {useState} from "react";
+import EmojiPicker from "emoji-picker-react";
+import Picker from 'emoji-picker-react';
 import React, {useEffect, useState} from "react";
 import {Link, Route, useNavigate} from 'react-router-dom'
 import "firebase/compat/firestore";
@@ -223,43 +226,51 @@ function Start() {
 
         <div id="whole-chat-view" className="whole-chat">
             <div className="chat-list-box" id="chat-list-box">
-                {newChats.map(chat => {
-                    return (
+                {newChats.map(chat=>{
+                    return(
                         chat.addToOverview()
                     )
                 })}
             </div>
             <div id="chat-box" className="specific-chat">
                 <div id="to-remove-and-add"></div>
+                {EmojiHandling()}
             </div>
             <div className="input-wrapper">
                 <textarea id="input" className="input"></textarea>
-                <button className="send-msg-btn-chat">
+                <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
                     <span className="material-icons">forum</span>
                 </button>
-                <button onClick={() => newChats[1].addNotification()}>click</button>
+                <button className="send-msg-btn-chat open-emoji" onClick={()=>(document.getElementById("picker-wrapper").style.visibility === "visible") ? document.getElementById("picker-wrapper").style.visibility="hidden" : document.getElementById("picker-wrapper").style.visibility="visible"}>😄</button>
             </div>
+            <button onClick={()=>(newChats[0].addNotification())}>CLK</button>
+            <button onClick={()=>(newChats[1].addNotification())}>CLK</button>
+            <button onClick={()=>(newChats[5].addNotification())}>CLK</button>
+            <button onClick={()=>(newChats[6].addNotification())}>CLK</button>
         </div>
     );
-
 }
+
+var codesForUI = [1];
 
 //Tim Finmans
 class Chat {
     idReceiver;
     name;
-    lastMessage;    // will be unnecessary in the future because it can be gained by taking the arrays last element
-    lastTimestamp;
+    lastMessage;    // will be unnecessary in the future because it can be gained by taking the arrays last element Test
     lastDate;
     messages = [];
+    codeForUI;
 
     // constructor to fill the variables
-    constructor(idReceiver, name, lastMessage, lastTimestemp, lastDate, messages) {
+    constructor(idReceiver, name, lastMessage, lastDate, messages) {
         this.idReceiver = idReceiver;
         this.name = name;
         this.lastMessage = lastMessage;
         this.lastTimestamp = lastTimestemp;
         this.lastDate = lastDate;
+        this.codeForUI = codesForUI[codesForUI.length - 1] + 1;
+        codesForUI.push(codesForUI[codesForUI.length - 1] + 1);
         messages.map(message=>{
             this.messages.push(message)
             }
@@ -270,7 +281,7 @@ class Chat {
     // add the chats that were already opened and can be chosen from the array
     addToOverview(){
         return (
-            <div id={this.idReceiver} className="chat-overview" onClick={()=>this.renderChat()}>
+            <div id={this.codeForUI} className="chat-overview" onClick={()=>this.renderChat()}>
                 <img className="round-image" src="https://i.pravatar.cc/200"></img>
                 <div className="text-wrapper-overview">
                     <p className="user-name">{this.name}</p>
@@ -284,11 +295,14 @@ class Chat {
     // render a specific chat when a chat was clicked
     renderChat(){
         //remove the notification
-        if(document.getElementById(this.idReceiver + "-notification") !== null) document.getElementById(this.idReceiver + "-notification").remove();
-
+        if(document.getElementById(this.codeForUI + "-notification") !== null) {
+            document.getElementById(this.codeForUI + "-notification").remove();
+        }
         // high lite this chat and un high light the previous one, if the previous one isn't this one
-        if(selectedChat !== null && selectedChat !== this) document.getElementById(selectedChat.idReceiver).style.backgroundColor = '#82C0CC';
-        document.getElementById(this.idReceiver).style.backgroundColor = '#cccccc';
+        if(selectedChat !== null && selectedChat !== this){
+            document.getElementById(selectedChat.codeForUI).style.backgroundColor = '#82C0CC';
+        }
+        document.getElementById(this.codeForUI).style.backgroundColor = '#cccccc';
 
         // set the selected chat to this one
         selectedChat = this;
@@ -363,12 +377,12 @@ class Chat {
         // swap chats when the selected chat isn't already at the first place
         if(newChats[0] !== selectedChat){
             // delete this Element from the overview
-            let thisOverview = document.getElementById(this.idReceiver)
-            document.getElementById(this.idReceiver).remove()
+            let thisOverview = document.getElementById(this.codeForUI)
+            document.getElementById(this.codeForUI).remove()
 
             // insert it in front of the first element of the view
             let toAddTo = document.getElementById("chat-list-box")
-            toAddTo.insertBefore(thisOverview, document.getElementById(newChats[0].idReceiver))
+            toAddTo.insertBefore(thisOverview, document.getElementById(newChats[0].codeForUI))
         }
 
         // sort the array => pull the chat that "wrote" a message on top
@@ -420,6 +434,7 @@ class Chat {
         wholeChatWindow.scrollTop = wholeChatWindow.scrollHeight;
 
         // scroll to the top of the chat overview when the message was send and the overview was moved to the top
+        document.getElementById("picker-wrapper").style.visibility="hidden"
         document.getElementById("chat-list-box").scrollTop = 0;
     }
 
@@ -431,8 +446,8 @@ class Chat {
         // add nothing when the chat to be added is the selected chat
         if(selectedChat === this) return;
 
-        if(document.getElementById(this.idReceiver + "-notification") !== null) {
-            let existingNotification = document.getElementById(this.idReceiver + "-notification")
+        if(document.getElementById(this.codeForUI + "-notification") !== null) {
+            let existingNotification = document.getElementById(this.codeForUI + "-notification")
             if(parseInt(existingNotification.textContent) > 98){
                 existingNotification.textContent = "99+";
             }
@@ -443,10 +458,10 @@ class Chat {
         }
         let notification = document.createElement("div");
         notification.className = "notification"
-        notification.id = this.idReceiver + "-notification"
+        notification.id = this.codeForUI + "-notification"
         notification.textContent = "1";
 
-        let overview = document.getElementById(this.idReceiver);
+        let overview = document.getElementById(this.codeForUI);
         overview.appendChild(notification)
     }
 }
@@ -456,6 +471,7 @@ function keyPress(evt) {
     if (evt.keyCode === 13 && evt.shiftKey) {
         if (evt.type === "keypress") {
             selectedChat.sendMessage(document.getElementById("input").value)
+            document.getElementById("picker-wrapper").style.visibility="hidden"
         }
         evt.preventDefault();
     }
@@ -503,29 +519,45 @@ class Message {
     }
 }
 
+// inspired by https://www.npmjs.com/package/emoji-picker-react
+const EmojiHandling = () => {
+    const [chosenEmoji, setChosenEmoji] = useState(null);
+
+    const onEmojiClick = (event, emojiObject) => {
+        setChosenEmoji(emojiObject);
+        const textField = document.getElementById("input")
+        textField.textContent = textField.textContent + emojiObject.emoji
+    };
+
+    return (
+        <div className="emoji-picker-wrapper" id="picker-wrapper">
+            <Picker onEmojiClick={onEmojiClick}/>
+        </div>
+    );
+};
+
 var newMessages = [new Message("Na, wie geht es dir?", "10:40", "s"),
     new Message("Mir geht es super, danke der Nachfrage.", "10:41", "r"),
     new Message(":D", "10:44", "s"),
-    new Message("Und dir?", "10:47", "r"),
-    new Message("Hey", "10:40", "s"),
-    new Message("Was macht die Kunst bei dir heute so an einem schönen Samstag?.", "10:41", "r"),
-    new Message("Fußball schauen und Bierchen trinken.", "10:44", "s"),
-    new Message("Na das wollen wir ja mal sehen was da bei raus kommt.", "10:47", "s")]
+    new Message("Und dir?", "10:47", "r"),new Message("Hey", "10:40", "s"),
+    new Message("Was machts du?", "10:41", "r"),
+    new Message("Nichts besonderes.", "10:44", "s"),
+    new Message("Okay. Aber das wird noch anders, oder?!", "10:47", "s")]
 
-var newMessages2 = [new Message("Hey", "10:40", "s"),
-    new Message("Was macht die Kunst bei dir heute so an einem schönen Samstag?.", "10:41", "r"),
-    new Message("Fußball schauen und Bierchen trinken.", "10:44", "s"),
-    new Message("Na das wollen wir ja mal sehen was da bei raus kommt.", "10:47", "s")]
+var newMessages2 = [new Message("Und dir?", "10:47", "r"),new Message("Hey", "10:40", "s"),
+    new Message("Was machts du?", "10:41", "r"),
+    new Message("Nichts besonderes.", "10:44", "s"),
+    new Message("Okay.", "10:47", "s")]
 
-var newChats = [new Chat("UID1","Tim","Hi wie gehts?","10.07.2001","11:25", newMessages),
-    new Chat("UID2","Mennwin Oh man Oh men oh ah uh men","Hi wie gehts dir und deiner ganze Familie?","10.07.2001","11:25", newMessages2),
-    new Chat("UID3","Max","Drei Mal darfst du raten :)","10.07.2001","11:25", newMessages),
-    new Chat("UID4","Katharina","Übermorgen leider erst wieder","10.07.2001","11:25", newMessages),
-    new Chat("UID5","Martina","Hi wie gehts?","10.07.2001","11:25", newMessages),
-    new Chat("UID6","Thomas","Naja, das muss jetzt nicht zwingend sein aber wenn du willst.","10.07.2001","11:25", newMessages),
-    new Chat("UID7","Andreas","Hey","10.07.2001","11:25", newMessages),
-    new Chat("UID8","Herr Winkelmann","Völlig Normal!","10.07.2001","11:25", newMessages),
-    new Chat("UID9","Jason","Das kann ja wohl nicht sein?!","10.07.2001","11:25", newMessages)];
+var newChats = [new Chat("UID1","Tim","Hi wie gehts?","11:25", newMessages),
+    new Chat("UID2","Luisa","Hi wie gehts dir und deiner ganze Familie?","11:25", newMessages2),
+    new Chat("UID3","Max","Drei Mal darfst du raten :)","11:25", newMessages),
+    new Chat("UID4","Katharina","Übermorgen leider erst wieder","11:25", newMessages),
+    new Chat("UID5","Martina","Hi wie gehts?","11:25", newMessages),
+    new Chat("UID6","Thomas","Naja, das muss jetzt nicht zwingend sein aber wenn du willst.","11:25", newMessages),
+    new Chat("UID7","Andreas","Hey","10.07.2001", newMessages),
+    new Chat("UID8","Herr Winkelmann","Völlig Normal!","11:25", newMessages),
+    new Chat("UID9","Jason","Das kann ja wohl nicht sein?!","11:25", newMessages)];
 
 
 // store the selected chat

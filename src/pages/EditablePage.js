@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {child, get, ref, remove, set, update} from "firebase/database";
+import {child, get, ref, set} from "firebase/database";
 import {rtDatabase} from "../Firebase";
 
 // all changes on this page by Katharina Zirkler
@@ -37,7 +37,6 @@ export class EditablePage extends Component {
         this.toggleEditMode = this.toggleEditMode.bind(this)
         this.receiveChildData = this.receiveChildData.bind(this)
         this.checkIfNodeExists = this.checkIfNodeExists.bind(this)
-        this.updateDB = this.updateDB.bind(this)
         this.addToDB = this.addToDB.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.swapPosition = this.swapPosition.bind(this)
@@ -119,10 +118,13 @@ export class EditablePage extends Component {
                 // alert(JSON.stringify(tempMap2))
                 // 4. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
-                    this.fetchContent()
+                    this.setState({
+                        toBeWrittenToDB: {},
+                        toBeDeletedFromDB: [],
+                        contentOfBoxes: tempMap2
+                    })
                     this.toggleEditMode()
                 })
-
             } catch (e) {
                 alert(e)
             }
@@ -133,34 +135,33 @@ export class EditablePage extends Component {
     }
 
     /* deprecated*/
-    updateDB() {
-        // submits the content that was prepared to be changed to the database
-        alert(JSON.stringify(this.state.toBeWrittenToDB))
-        alert(JSON.stringify(this.state.toBeDeletedFromDB))
-
-        try {
-            this.state.toBeDeletedFromDB.forEach(item => {
-                // alert(this.path + item)
-                // this.deleteFromDB(item)
-                remove(ref(rtDatabase, this.path + item)).then(() => {
-                    alert("deleted " + item)
-                    // todo: reshuffle content
-                })
-            })
-            this.setState({
-                toBeDeletedFromDB: []
-            })
-            update(ref(rtDatabase, this.path), this.state.toBeWrittenToDB).then(() => {
-                this.setState({
-                    toBeWrittenToDB: {}
-                })
-                this.fetchContent()
-                this.toggleEditMode()
-            })
-        } catch (e) {
-            alert(e)
-        }
-    }
+    // updateDB() {
+    //     // submits the content that was prepared to be changed to the database
+    //     alert(JSON.stringify(this.state.toBeWrittenToDB))
+    //     alert(JSON.stringify(this.state.toBeDeletedFromDB))
+    //
+    //     try {
+    //         this.state.toBeDeletedFromDB.forEach(item => {
+    //             // alert(this.path + item)
+    //             // this.deleteFromDB(item)
+    //             remove(ref(rtDatabase, this.path + item)).then(() => {
+    //                 alert("deleted " + item)
+    //             })
+    //         })
+    //         this.setState({
+    //             toBeDeletedFromDB: []
+    //         })
+    //         update(ref(rtDatabase, this.path), this.state.toBeWrittenToDB).then(() => {
+    //             this.setState({
+    //                 toBeWrittenToDB: {}
+    //             })
+    //             this.fetchContent()
+    //             this.toggleEditMode()
+    //         })
+    //     } catch (e) {
+    //         alert(e)
+    //     }
+    // }
 
     abortChanges() {
         this.setState({
@@ -172,19 +173,18 @@ export class EditablePage extends Component {
 
     checkIfNodeExists(position) {
         return new Promise((resolve, _) => {
-            // alert("position: " + position)
             let _position = position
             let _path = "content" + _position.toString()
             try {
-                get(ref(rtDatabase, this.path + [_path.toString()])).then((snapshot) => {
-                    if (snapshot.exists()) {
-                        // alert(snapshot.key)
-                        _position++
-                        resolve(this.checkIfNodeExists(_position))
-                    } else {
-                        resolve(_position)
-                    }
-                })
+                get(ref(rtDatabase, this.path + [_path.toString()]))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            _position++
+                            resolve(this.checkIfNodeExists(_position))
+                        } else {
+                            resolve(_position)
+                        }
+                    })
             } catch (e) {
                 alert(e)
             }
@@ -202,8 +202,13 @@ export class EditablePage extends Component {
                 // alert(_path)
                 let _value = {"content": "", "title": "", "position": pos}
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
-                    this.fetchContent()
-                    this.toggleEditMode()
+                    let tempMap = {...this.state.contentOfBoxes}
+                    tempMap[_path] = _value
+                    this.setState({
+                        contentOfBoxes: tempMap
+                    })
+                    if (!this.state.editMode)
+                        this.toggleEditMode()
                 })
             })
         } catch (e) {
@@ -262,12 +267,16 @@ export class EditablePage extends Component {
                     toBeDeletedFromDB: _listOfNode,
                     submitDisabled: false
                 })
-            } else { // todo: check if present in tbdeleted -> remove there
+            } else {
                 let _listOfNode = {...this.state.toBeWrittenToDB}
                 _listOfNode[_path] = _value
+                let _toBeDeleted = [...this.state.toBeDeletedFromDB]
+                if (_toBeDeleted.indexOf(_path) !== -1)
+                    _toBeDeleted.splice(_toBeDeleted.indexOf(_path), 1)
                 this.setState({
                     toBeWrittenToDB: _listOfNode,
-                    submitDisabled: false
+                    submitDisabled: false,
+                    toBeDeletedFromDB: _toBeDeleted
                 })
             }
         } catch (e) {
@@ -303,7 +312,12 @@ export class EditablePage extends Component {
                                                 onClick={this.addToDB}>
                                             <span className="material-icons">add_box</span>
                                         </button>
-                                    : null
+                                    : this.userIsAdmin && editToggled && (index + 1) === array.length ?
+                                        <button className="editable-material-button swap icons-container"
+                                                onClick={this.addToDB}>
+                                            <span className="material-icons">add_box</span>
+                                        </button>
+                                        : null
                             }
                         </div>
                     )
@@ -408,7 +422,8 @@ export class InfoBox extends Component {
         this.setState({
             _content: "",
             _title: "",
-            deleteCheck: true
+            deleteCheck: true,
+            sentCheck: false
         }, () => this.sendDataToParent())
 
     }
@@ -469,8 +484,8 @@ export class InfoBox extends Component {
                             </button> :
                             <button className="editable-button zip-button" type="submit" onClick={() => {
                                 this.sendDataToParent();
-                                this.setState({sentCheck: true})
-                            }}>Send Data
+                                this.setState({sentCheck: true, deleteCheck: false})
+                            }}>Änderungen vormerken
                             </button>}
                     </div> :
                     this.props.title !== "" ?
