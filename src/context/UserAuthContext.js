@@ -45,7 +45,7 @@ export function UserAuthContextProvider({children}) {
     );
 }
 
-export const createUserDocument = async (users, additionalData) =>{
+export const createUserDocument = async (users) =>{
     if(!users)return;
 
     const userRef = doc(fsDatabase,"user", users.uid);

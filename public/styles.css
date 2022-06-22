@@ -514,7 +514,7 @@ a.forgot-password { font-size: 15px; }
 .editable-p {
   margin-top: 16px;
   line-height: 1.5;
-  text-align: left;
+  text-align: justify;
 }
 
 .editable-button:active {

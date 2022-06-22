@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {child, get, ref, set} from "firebase/database";
+import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
 
 // all changes on this page by Katharina Zirkler
@@ -239,10 +239,13 @@ export class EditablePage extends Component {
             tempList.forEach(([key, val]) => {
                 tempState[key] = val
             })
-            // alert("tempstate: " + JSON.stringify(tempState))
-            this.setState({
-                contentOfBoxes: tempState
+            update(ref(rtDatabase, this.path), tempState).then(r => {
+                // alert("tempstate: " + JSON.stringify(tempState))
+                this.setState({
+                    contentOfBoxes: tempState
+                })
             })
+
         } catch
             (e) {
             alert(e)

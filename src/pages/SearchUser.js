@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {collection, query, where, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
 import {auth, fsDatabase} from "../Firebase";
 import {useCollectionData} from "react-firebase-hooks/firestore";
 
@@ -45,19 +45,31 @@ function SearchUser() {
                     {/* Catch corresponding user ZIP code from DB  */}
                     <h2>{userID}</h2>
                     {/* Link user to chat page with correspondinh user */}
-                    <button onClick={() => openChat(userID)} className="send-msg-btn">
+                    <button onClick={() => openChatNew(userID)} className="send-msg-btn">
                         <span className="material-icons">forum</span>
                     </button>
                 </div>
             </div>
         );
     }
-    function openChat(props){
-        const chatID = props + auth.currentUser.uid;
-        const div= document.getElementById("hs");
+    async function openChatNew(props) {
+        const chatIDNew = auth.currentUser.uid + props;
+        const div = document.getElementById("hs");
         const heading = document.createElement("h1");
-        heading.textContent=chatID;
+        heading.textContent = chatIDNew;
         div.appendChild(heading);
+
+
+        const chatRef = doc(fsDatabase, "chats", chatIDNew);
+        const snapshot = await getDoc(chatRef);
+
+        if (!snapshot.exists()) {
+            await setDoc(chatRef, {
+                ID1: auth.currentUser.uid,
+                ID2: props,
+                chatID: chatIDNew
+            });
+        }
 
     }
 
