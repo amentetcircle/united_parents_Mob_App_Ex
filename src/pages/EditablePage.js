@@ -1,29 +1,28 @@
 import React, {Component} from "react";
 import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
+import {useUserAuth} from "../context/UserAuthContext";
 
 // all changes on this page by Katharina Zirkler
 
-// todo: only show edit button if user is admin
-// done: change state for all content toggles
-// done: make changes stay (backend)
-//       -> mockup testContent / Content1 holt sich Inhalt in Firebase?
-// done: use componentdidmount for initial DB fetch instead of constructor
-// done: introduce arguments to change different content boxes
-// done: submit changes in HelpFinances for entire page
-// done: possibility to add/delete (/switch? ) Infoboxes in edit-mode
-// todo: format input (font style, ....) -> ready-to-use editor?
+// done: only show edit button / restric pages if user is admin
+// tobedone: format input (font style, ....) -> ready-to-use editor => Tim
 //       caution: DB can only store plain text!
-// done: same on Home
+// done: fix text overflow with words longer than width
+// todo: remove box immediately when pressing delete?
+// todo: toggle delete without abbrechen
+// done: wrap words longer than field
+// done: addBox with exemplary content
+
 
 export class EditablePage extends Component {
 
     _listOfNodes = {}
     _listOfKeys = []
-    userIsAdmin = true
+
 
     constructor(props) {
-        super(props);
+        super(props)
         this.path = props.path
         this.state = {
             contentOfBoxes: {},
@@ -32,6 +31,7 @@ export class EditablePage extends Component {
             editMode: false,
             submitDisabled: true,
             listOfKeys: [],
+            userIsAdmin: props.admin
         }
         this.fetchContent = this.fetchContent.bind(this)
         this.toggleEditMode = this.toggleEditMode.bind(this)
@@ -41,11 +41,31 @@ export class EditablePage extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.swapPosition = this.swapPosition.bind(this)
         this.abortChanges = this.abortChanges.bind(this)
+        // this.isAdmin = this.isAdmin.bind(this)
     }
 
     componentDidMount() {
         this.fetchContent()
     }
+
+    // async isAdmin() {
+    //     try {
+    //         const docRef = doc(fsDatabase, "user", auth.currentUser.uid.toString());
+    //         const docSnap = await getDoc(docRef)
+    //         if (docSnap.exists()) {
+    //             const userInfo = docSnap.data()
+    //             alert("admin: " + userInfo.admin)
+    //             this.setState({
+    //                 userIsAdmin: userInfo.admin
+    //             })
+    //         } else {
+    //             alert("No such document!")
+    //         }
+    //
+    //     } catch (e) {
+    //         alert(e)
+    //     }
+    // }
 
     fetchContent() {
         // fetches the current database content of this page's table
@@ -53,7 +73,6 @@ export class EditablePage extends Component {
         get(child(ref(rtDatabase), this.path)).then((snapshot) => {
             if (snapshot.exists()) {
                 snapshot.forEach(node => {
-                    // alert(JSON.stringify(node))
                     this._listOfNodes[node.key] = node.val()
                     this._listOfKeys.push(node.key)
                 })
@@ -86,36 +105,29 @@ export class EditablePage extends Component {
             try {
                 let tempMap = {}
                 Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
-                    // alert("in handlesubmit: " + key + ": " + JSON.stringify(value))
                     tempMap[key] = value
                 })
                 Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
-                    // alert("in tbw: " + key + ": " + JSON.stringify(value))
                     tempMap[key] = value
                 })
-                // alert(JSON.stringify(tempMap))
 
                 // 2. delete tbd boxes in state
                 let tempMap2 = {}
                 Object.entries(tempMap).map(([key, value]) => {
-                    // alert("in delete boxes: " + key + ": " + JSON.stringify(value))
                     if (this.state.toBeDeletedFromDB.indexOf(key) === -1) {
-                        // alert("keep" + key)
                         tempMap2[key] = value
                     }
                 })
-                // alert(JSON.stringify(tempMap))
 
                 // 3. update content order in state CoB (taking out blank positions)
                 Object.entries(tempMap2)
                     .sort((a, b) => a[1]["position"] - b[1]["position"])
                     .forEach(([key, value], index) => {
-                        // alert(key + " <-key / index ->" + index)
                         if (value["position"] !== (index + 1)) {
                             value["position"] = (index + 1)
                         }
                     })
-                // alert(JSON.stringify(tempMap2))
+
                 // 4. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
                     this.setState({
@@ -129,39 +141,9 @@ export class EditablePage extends Component {
                 alert(e)
             }
         } else {
-            alert("nothing changed")
             this.toggleEditMode()
         }
     }
-
-    /* deprecated*/
-    // updateDB() {
-    //     // submits the content that was prepared to be changed to the database
-    //     alert(JSON.stringify(this.state.toBeWrittenToDB))
-    //     alert(JSON.stringify(this.state.toBeDeletedFromDB))
-    //
-    //     try {
-    //         this.state.toBeDeletedFromDB.forEach(item => {
-    //             // alert(this.path + item)
-    //             // this.deleteFromDB(item)
-    //             remove(ref(rtDatabase, this.path + item)).then(() => {
-    //                 alert("deleted " + item)
-    //             })
-    //         })
-    //         this.setState({
-    //             toBeDeletedFromDB: []
-    //         })
-    //         update(ref(rtDatabase, this.path), this.state.toBeWrittenToDB).then(() => {
-    //             this.setState({
-    //                 toBeWrittenToDB: {}
-    //             })
-    //             this.fetchContent()
-    //             this.toggleEditMode()
-    //         })
-    //     } catch (e) {
-    //         alert(e)
-    //     }
-    // }
 
     abortChanges() {
         this.setState({
@@ -193,22 +175,25 @@ export class EditablePage extends Component {
 
     addToDB() {
         // submits the content of newly added content boxes to the database
-        // alert(JSON.stringify(this.state.contentOfBoxes))
-        // alert(this.state.listOfKeys)
+
         try {
             let _position = this.state.listOfKeys.length + 1
             this.checkIfNodeExists(_position).then((pos) => {
                 let _path = "content" + pos.toString()
-                // alert(_path)
-                let _value = {"content": "", "title": "", "position": pos}
+                let _value = {"content": "Hier kannst du deinen Inhalt einfügen und anpassen. " +
+                        "Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo " +
+                        "der Fra-UAS automatisch eingefügt.",
+                    "title": "Titel", "position": pos}
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
                     let tempMap = {...this.state.contentOfBoxes}
                     tempMap[_path] = _value
                     this.setState({
                         contentOfBoxes: tempMap
                     })
-                    if (!this.state.editMode)
+                    if (!this.state.editMode) {
                         this.toggleEditMode()
+                        window.scroll(0, document.body.scrollHeight)
+                    }
                 })
             })
         } catch (e) {
@@ -217,30 +202,22 @@ export class EditablePage extends Component {
     }
 
     swapPosition(upperKey) {
-        // alert("in progress, upper Key: " + upperKey)
-        // alert(JSON.stringify(this.state.contentOfBoxes))
         try {
             let tempList = Object.entries(this.state.contentOfBoxes).map((entry) => entry)
-            // alert("vorher: " + JSON.stringify(tempList))
             tempList.sort((a, b) => a[1]["position"] - b[1]["position"])
                 .forEach(([key, val], index, array) => {
-                    // alert("in foreach: {" + key + ": " + JSON.stringify(val) + "}")
                     if (key === upperKey) {
-                        // alert("next: " + array[index + 1])
                         let tempUpperPosition = val.position
-                        // alert(tempLower)
                         val.position = array[index + 1][1].position
                         array[index + 1][1].position = tempUpperPosition
                     }
                 })
 
-            // alert("nachher: " + JSON.stringify(tempList))
             let tempState = {}
             tempList.forEach(([key, val]) => {
                 tempState[key] = val
             })
             update(ref(rtDatabase, this.path), tempState).then(r => {
-                // alert("tempstate: " + JSON.stringify(tempState))
                 this.setState({
                     contentOfBoxes: tempState
                 })
@@ -254,14 +231,11 @@ export class EditablePage extends Component {
 
     receiveChildData(node) {
         // updates this state with data prepared by the content boxes
-        // alert(JSON.stringify(node))
         try {
             let _node = Object.entries(node)[0]
             let _path = _node[0]
             let _value = _node[1]
-            // alert(_node)
-            // alert(_path)
-            // alert(JSON.stringify(_value))
+
             if (_value['content'] === "" && _value['title'] === "") {
                 let _listOfNode = [...this.state.toBeDeletedFromDB]
                 if (_listOfNode.indexOf(_path) === -1)
@@ -288,6 +262,7 @@ export class EditablePage extends Component {
     }
 
     render() {
+
         const editToggled = this.state.editMode
         let listOfInfoboxes = []
         Object.entries(this.state.contentOfBoxes)
@@ -304,7 +279,7 @@ export class EditablePage extends Component {
                                 submitData={this.receiveChildData}
                             />
                             {
-                                this.userIsAdmin && !editToggled ?
+                                this.state.userIsAdmin && !editToggled ?
                                     (index + 1) !== array.length ?
                                         <button className="editable-material-button swap icons-container"
                                                 onClick={() => this.swapPosition(key)}>
@@ -315,7 +290,7 @@ export class EditablePage extends Component {
                                                 onClick={this.addToDB}>
                                             <span className="material-icons">add_box</span>
                                         </button>
-                                    : this.userIsAdmin && editToggled && (index + 1) === array.length ?
+                                    : this.state.userIsAdmin && editToggled && (index + 1) === array.length ?
                                         <button className="editable-material-button swap icons-container"
                                                 onClick={this.addToDB}>
                                             <span className="material-icons">add_box</span>
@@ -330,7 +305,7 @@ export class EditablePage extends Component {
         return (
             <div>
                 <div>
-                    {this.userIsAdmin ?
+                    {this.state.userIsAdmin ?
                         <button className="editable-material-button edit icons-container" onClick={() => {
                             if (editToggled) {
                                 if (window.confirm("Änderungen speichern?")) {
@@ -447,7 +422,6 @@ export class InfoBox extends Component {
 
         return (
             <div className="content-box">
-                {/*<h1>{this.props.path}</h1>*/}
 
                 {this.props.title !== "" ?
                     <div className="uni-logo">
@@ -468,7 +442,8 @@ export class InfoBox extends Component {
                                 <span className="material-icons">delete</span>
                             </button>}
                         <div>
-                            <input name="_title"
+                            <input className="editable-input"
+                                   name="_title"
                                    value={this.state._title}
                                    onChange={this.handleInputChange}>
                             </input>
@@ -493,7 +468,7 @@ export class InfoBox extends Component {
                     </div> :
                     this.props.title !== "" ?
                         <div>
-                            <h1 className="primary">{this.props.title}</h1>
+                            <h1 className="primary editable-t">{this.props.title}</h1>
                             <p className="text editable-p">{this.props.content}</p>
                         </div> :
                         <div>
