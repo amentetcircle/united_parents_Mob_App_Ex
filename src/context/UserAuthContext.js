@@ -1,17 +1,19 @@
-import React, {useContext, useState, useEffect, createContext} from "react";
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged} from "firebase/auth";
+import React, {createContext, useContext, useEffect, useState} from "react";
+import {createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword} from "firebase/auth";
 import {auth, fsDatabase} from "../Firebase";
-import {getDoc, doc, setDoc, addDoc} from "firebase/firestore";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
+import {useNavigate} from "react-router-dom";
 
 const userAuthContext = createContext();
 
+
 export function UserAuthContextProvider({children}) {
     const [user, setUser] = useState("");
-
-
+    const [isAdmin, setAdmin] = useState(false)
+    const navigate = useNavigate();
 
 
     function register(email, password) {
@@ -20,9 +22,25 @@ export function UserAuthContextProvider({children}) {
     }
 
     function login(email, password) {
-        return signInWithEmailAndPassword(auth, email, password);
+        signInWithEmailAndPassword(auth, email, password).then(async () => {
+            // Katharina Zirkler
+            try {
+                const docRef = doc(fsDatabase, "user", auth.currentUser.uid)
+                const docSnap = await getDoc(docRef)
+
+                if (docSnap.exists()) {
+                    const admin = docSnap.data().admin
+                    setAdmin(admin)
+                } else {
+                    alert("No document for this UID");
+                }
+                navigate("/home")  // todo: not happy having this here, should be in Login.js / handleSubmit, but works for now
+            } catch (e) {
+                alert(e)
+            }
+        });
     }
-    
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             console.log(currentUser);
@@ -38,7 +56,8 @@ export function UserAuthContextProvider({children}) {
             value={{
             user,
             register,
-            login
+            login,
+                isAdmin
         }}>
             {children}
         </userAuthContext.Provider>
@@ -54,7 +73,8 @@ export const createUserDocument = async (users) =>{
     if(!snapshot.exists()){
         await setDoc(userRef, {
             email:users.email,
-            userID:users.uid
+            userID:users.uid,
+            admin: false
         });
     }
 }

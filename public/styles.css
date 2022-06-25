@@ -511,10 +511,15 @@ a.forgot-password { font-size: 15px; }
   width: 75vw;
 }
 
+.editable-t {
+  overflow-wrap: break-word;
+}
+
 .editable-p {
   margin-top: 16px;
   line-height: 1.5;
-  text-align: justify;
+  text-align: left;
+  overflow-wrap: break-word;
 }
 
 .editable-button:active {
@@ -532,6 +537,10 @@ a.forgot-password { font-size: 15px; }
 
 .editable-material-button:hover{
   color: #ffa62b;
+}
+
+.disabled-material-button{
+  color: #cccccc;
 }
 
 .edit {
@@ -565,9 +574,15 @@ a.forgot-password { font-size: 15px; }
   top: -15px;
 }
 
+.editable-input {
+  width: 85%;
+  padding: 0.5em;
+  text-align: center;
+}
+
 .editable-textarea {
   caret-color: black;
-  width: 90%;
+  width: 95%;
   height: 300px;
   margin: 10px;
   border: 1px solid #cccccc;
