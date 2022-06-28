@@ -11,8 +11,6 @@ import "firebase/compat/auth";
 }*/
 
 
-
-
 //Tim Finmans
 function Start() {
     // will be called when the chat area is entered
@@ -223,12 +221,13 @@ function Start() {
                     )
                 })}
             </div>
-            <div id="chat-box" className="specific-chat">
+            <div id="chat-box" className="specific-chat" onClick={()=>{closeEmoji()}}>
                 <div id="to-remove-and-add"></div>
                 {EmojiHandling()}
             </div>
             <div className="input-wrapper">
-                <textarea id="input" className="input"></textarea>
+                <textarea id="input" className="input">
+                </textarea>
                 <button className="send-msg-btn-chat" onClick={()=>selectedChat.sendMessage(document.getElementById("input").value)}>
                     <span className="material-icons">forum</span>
                 </button>
@@ -244,7 +243,7 @@ function Start() {
 
 var codesForUI = [1];
 
-//Tim Finmans
+// from here to the bottom everything by Tim Finmans
 class Chat {
     idReceiver;
     name;
@@ -284,6 +283,9 @@ class Chat {
 
     // render a specific chat when a chat was clicked
     renderChat(){
+        //close emoji Selection
+        closeEmoji()
+
         //remove the notification
         if(document.getElementById(this.codeForUI + "-notification") !== null) {
             document.getElementById(this.codeForUI + "-notification").remove();
@@ -473,6 +475,7 @@ function keyPress(evt) {
     }
 }
 
+// Tim Finmans
 class Message {
     text;
     timestamp;
@@ -519,7 +522,8 @@ const EmojiHandling = () => {
     const onEmojiClick = (event, emojiObject) => {
         setChosenEmoji(emojiObject);
         const textField = document.getElementById("input")
-        textField.textContent = textField.textContent + emojiObject.emoji + "awd"
+        textField.value = textField.value + emojiObject.emoji
+        event.stopPropagation();
     };
 
     return (
@@ -528,6 +532,12 @@ const EmojiHandling = () => {
         </div>
     );
 };
+
+function closeEmoji(event) {
+    if(document.getElementById("picker-wrapper").style.visibility === "visible") {
+        document.getElementById("picker-wrapper").style.visibility = "hidden";
+    }
+}
 
 var newMessages = [new Message("Na, wie geht es dir?", "10:40", "s"),
     new Message("Mir geht es super, danke der Nachfrage.", "10:41", "r"),
