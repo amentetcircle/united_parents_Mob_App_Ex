@@ -1,12 +1,15 @@
 import React from "react";
 import {EditablePage} from "./EditablePage";
+import {useUserAuth} from "../context/UserAuthContext";
 
 // Katharina Zirkler
 
 
 function Help() {
 
-    return <EditablePage path="Help/"/>
+    const {isAdmin} = useUserAuth()
+
+    return <EditablePage path="Help/" admin={isAdmin}/>
 
 }
 

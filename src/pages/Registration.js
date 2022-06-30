@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import  {fsDatabase, auth} from "../Firebase";
 import { getDatabase, ref, set } from "firebase/database";
 
-import {Form, Button, Card, Alert} from 'react-bootstrap'
+import {Form, Button, Card, Alert, FormCheck} from 'react-bootstrap'
 import {Link, useNavigate} from 'react-router-dom'
 import {createUserDocument, useUserAuth} from "../context/UserAuthContext"
 import {createUserWithEmailAndPassword} from "firebase/auth";
@@ -25,6 +25,7 @@ const Registration = () => {
     const [password,
         setPassword] = useState("")
     const [displayName, setDisplayName] = useState("")
+    const [admin, setAdmin] = useState(false)
     const {register} = useUserAuth()
     const [error,
         setError] = useState("")
@@ -33,13 +34,15 @@ const Registration = () => {
     const handleSubmit = async(e) => {
         e.preventDefault()
 
+        alert(admin)
+
         try {
             const {user} = await createUserWithEmailAndPassword(
                 auth,
                 email,
                 password
             );
-            await createUserDocument(user, {displayName});
+            await createUserDocument(user, admin, {displayName});
             navigate("/")
         }catch (err) {
             setError(err.message);
@@ -47,6 +50,11 @@ const Registration = () => {
         }
     }
 
+    // Katharina Zirkler
+    const handleCheckbox = (event) => {
+        alert(event.target.checked)
+        setAdmin(event.target.checked)
+    }
 
 
     return (
@@ -77,6 +85,12 @@ const Registration = () => {
                         <Form.Group id="rePassword">
                             <Form.Label>Passwort Wiederholen</Form.Label>
                             <Form.Control type="Password" placeholder="Passwort wiederholen"/>
+                        </Form.Group>
+
+                        {/*Katharina Zirkler*/}
+                        <Form.Group id="checkAdmin">
+                            <Form.Label>Als Admin registrieren?</Form.Label>
+                            <Form.Check checked={admin} onChange={handleCheckbox}/>
                         </Form.Group>
 
                         <div className="d-grid gap-2">

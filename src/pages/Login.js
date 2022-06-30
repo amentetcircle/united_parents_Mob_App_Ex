@@ -1,27 +1,26 @@
-import React, {useRef, useState} from "react";
-import {Form, Button, Card, Alert} from 'react-bootstrap'
+import React, {useState} from "react";
+import {Alert, Button, Card, Form} from 'react-bootstrap'
 import {Link, useNavigate} from 'react-router-dom'
 import {useUserAuth} from "../context/UserAuthContext"
 
 /**
  * TODO:
  * implementation of FORGOT PASSWORD function
-*/
+ */
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const {login} = useUserAuth();
     const [error, setError] = useState("");
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setError("")
         try {
             await login(email, password)
-            navigate("/home")
-
+            // navigate("/home")
         } catch (err) {
             setError(err.message);
         }
