@@ -136,9 +136,12 @@ export class EditablePage extends Component {
             try {
                 let tempMap = {}
                 Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
-                    // let temp = value
-                    // temp.content = JSON.stringify(convertToRaw(value.content))
+                    let temp = value
+                    console.log("value", value.content)
+                    temp.content = JSON.stringify(convertToRaw(value.content))
                     tempMap[key] = value
+                    tempMap[key].content = temp.content
+
                 })
                 Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
                     // this is already converted to raw
@@ -539,10 +542,10 @@ export class InfoBox extends Component {
                     this.props.title !== "" ?
                         <div>
                             <h1 className="primary editable-t">{this.props.title}</h1>
-                            <p className="text editable-p">{this.state.body != null ? this.state.body : _content}</p>
+                            <div className="text editable-p">{this.state.body != null ? this.state.body : _content}</div>
                         </div> :
                         <div>
-                            <p className="text editable">{_content}</p>
+                            <div className="text editable">{_content}</div>
                         </div>}
             </div>
 
