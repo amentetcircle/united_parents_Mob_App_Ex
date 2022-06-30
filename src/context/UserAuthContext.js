@@ -64,7 +64,7 @@ export function UserAuthContextProvider({children}) {
     );
 }
 
-export const createUserDocument = async (users) =>{
+export const createUserDocument = async (users, admin) =>{
     if(!users)return;
 
     const userRef = doc(fsDatabase,"user", users.uid);
@@ -74,7 +74,7 @@ export const createUserDocument = async (users) =>{
         await setDoc(userRef, {
             email:users.email,
             userID:users.uid,
-            admin: false
+            admin: admin
         });
     }
 }

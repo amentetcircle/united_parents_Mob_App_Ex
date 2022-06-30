@@ -1,8 +1,32 @@
 import React, {Component} from "react";
 import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
-import {useUserAuth} from "../context/UserAuthContext";
-import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils} from "draft-js";
+import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils, ContentState} from "draft-js";
+import draftToHtml from 'draftjs-to-html';
+
+
+/*
+* draft.js
+* Copyright (c) Facebook, Inc. and its affiliates.
+*
+* draftjs-to-html
+* Copyright (c) 2016 Jyoti Puri
+*
+* both: MIT License
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this
+* software and associated documentation files (the "Software"), to deal in the Software
+* without restriction, including without limitation the rights to use, copy, modify, merge,
+* publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+* to whom the Software is furnished to do so, subject to the following conditions:
+* The above copyright notice and this permission notice shall be included in all copies or substantial
+* portions of the Software.
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+* NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 
 // all changes on this page by Katharina Zirkler
 
@@ -55,7 +79,7 @@ export class EditablePage extends Component {
     //         const docSnap = await getDoc(docRef)
     //         if (docSnap.exists()) {
     //             const userInfo = docSnap.data()
-    //             alert("admin: " + userInfo.admin)
+    //             console.log("admin: " + userInfo.admin)
     //             this.setState({
     //                 userIsAdmin: userInfo.admin
     //             })
@@ -74,7 +98,13 @@ export class EditablePage extends Component {
         get(child(ref(rtDatabase), this.path)).then((snapshot) => {
             if (snapshot.exists()) {
                 snapshot.forEach(node => {
-                    this._listOfNodes[node.key] = node.val()
+                    let _node = new Object(node.val())
+                    console.log(_node)
+                    let test = convertFromRaw(JSON.parse(node.val()['content']))
+                    console.log(test)
+                    _node['content'] = test
+                    console.log(_node)
+                    this._listOfNodes[node.key] = _node
                     this._listOfKeys.push(node.key)
                 })
                 this.setState({
@@ -85,7 +115,7 @@ export class EditablePage extends Component {
                     this._listOfKeys = []
                 })
             } else {
-                alert("No data available")
+                console.log("No data available")
             }
         }).catch((error) => {
             alert(error);
@@ -106,9 +136,12 @@ export class EditablePage extends Component {
             try {
                 let tempMap = {}
                 Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
+                    // let temp = value
+                    // temp.content = JSON.stringify(convertToRaw(value.content))
                     tempMap[key] = value
                 })
                 Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
+                    // this is already converted to raw
                     tempMap[key] = value
                 })
 
@@ -139,6 +172,7 @@ export class EditablePage extends Component {
                     this.toggleEditMode()
                 })
             } catch (e) {
+                console.log(e)
                 alert(e)
             }
         } else {
@@ -181,10 +215,12 @@ export class EditablePage extends Component {
             let _position = this.state.listOfKeys.length + 1
             this.checkIfNodeExists(_position).then((pos) => {
                 let _path = "content" + pos.toString()
-                let _value = {"content": "Hier kannst du deinen Inhalt einfügen und anpassen. " +
+                let _value = {
+                    "content": "Hier kannst du deinen Inhalt einfügen und anpassen. " +
                         "Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo " +
                         "der Fra-UAS automatisch eingefügt.",
-                    "title": "Titel", "position": pos}
+                    "title": "Titel", "position": pos
+                }
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
                     let tempMap = {...this.state.contentOfBoxes}
                     tempMap[_path] = _value
@@ -269,6 +305,7 @@ export class EditablePage extends Component {
         Object.entries(this.state.contentOfBoxes)
             .sort((a, b) => a[1]["position"] - b[1]["position"])
             .forEach(([key, value], index, array) => {
+
                     listOfInfoboxes.push(
                         <div className="editable">
                             <InfoBox
@@ -361,12 +398,17 @@ export class InfoBox extends Component {
         this.handleInputChange = this.handleInputChange.bind(this)
         this.sendDataToParent = this.sendDataToParent.bind(this)
         this.deleteThis = this.deleteThis.bind(this)
+        this.receiveEditorState = this.receiveEditorState.bind(this)
     }
 
     componentDidMount() {
+        // this.setState({
+        //     _title: this.props.title,
+        //     _content: ContentState.createFromText(this.props.content),
+        // })
         this.setState({
             _title: this.props.title,
-            _content: this.props.content,
+            _content: this.props.content
         })
     }
 
@@ -418,9 +460,32 @@ export class InfoBox extends Component {
         });
     }
 
+    receiveEditorState(es) {
+        this.setState({
+            editorstate: es,
+            _content: JSON.stringify(convertToRaw(es.getCurrentContent())),
+        })
+    }
+
+    convertToHTML() {
+        // doesnt work yet
+        try {
+            console.log("in convert: ", this.state.editorState.getCurrentContent())
+            const _body = draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
+            console.log("in convert: ", _body)
+            this.setState({
+                body: _body
+            })
+        } catch (e) {
+            alert(e)
+        }
+    }
+
 
     render() {
 
+        // todo: zwischenschritt check ungewollte html-tags
+        let _content = <div dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.props.content))}} ></div>
         return (
             <div className="content-box">
 
@@ -450,14 +515,15 @@ export class InfoBox extends Component {
                             </input>
                         </div>
                         <div>
-                        {/*<textarea className="editable-textarea"
+                            {/*<textarea className="editable-textarea"
                                   name="_content"
                                   value={this.state._content}
                                   onChange={this.handleInputChange}>
                                 </textarea>*/}
-                        <RichEditorExample
-                            onChange={this.handleInputChange}
-                        ></RichEditorExample>
+                            <RichEditorExample
+                                value={this.props.content}
+                                submit={this.receiveEditorState}>
+                            </RichEditorExample>
                         </div>
                         {this.state.sentCheck ?
                             <button className="editable-material-button icons-container" type="submit"
@@ -473,14 +539,15 @@ export class InfoBox extends Component {
                     this.props.title !== "" ?
                         <div>
                             <h1 className="primary editable-t">{this.props.title}</h1>
-                            <p className="text editable-p">{this.props.content}</p>
+                            <p className="text editable-p">{this.state.body != null ? this.state.body : _content}</p>
                         </div> :
                         <div>
-                            <p className="text editable">{this.props.content}</p>
+                            <p className="text editable">{_content}</p>
                         </div>}
             </div>
 
         );
+
     }
 }
 
@@ -488,28 +555,89 @@ export class InfoBox extends Component {
 class RichEditorExample extends React.Component {
 
     constructor(props) {
-
         super(props);
-        this.state = {}
-        const content = null
+        try {
+            const test = '{' +
+                '      "entityMap": {},' +
+                '      "blocks": [' +
+                '        {' +
+                '          "key": "e4brl",' +
+                '          "text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",' +
+                '          "type": "unstyled",' +
+                '          "depth": 0,' +
+                '          "inlineStyleRanges": [' +
+                '            {' +
+                '              "offset": 0,' +
+                '              "length": 11,' +
+                '              "style": "BOLD"' +
+                '            },' +
+                '            {' +
+                '              "offset": 28,' +
+                '              "length": 29,' +
+                '              "style": "BOLD"' +
+                '            },' +
+                '            {' +
+                '              "offset": 12,' +
+                '              "length": 15,' +
+                '              "style": "ITALIC"' +
+                '            },' +
+                '            {' +
+                '              "offset": 28,' +
+                '              "length": 28,' +
+                '              "style": "ITALIC"' +
+                '            }' +
+                '          ],' +
+                '          "entityRanges": [],' +
+                '          "data": {}' +
+                '        },' +
+                '        {' +
+                '          "key": "3bflg",' +
+                '          "text": "Aenean commodo ligula eget dolor.",' +
+                '          "type": "unstyled",' +
+                '          "depth": 0,' +
+                '          "inlineStyleRanges": [],' +
+                '          "entityRanges": [],' +
+                '          "data": {}' +
+                '        }' +
+                '      ]' +
+                '    }'
 
-        //const content = window.localStorage.getItem("content" + this.itsCounter);
-        if (content) {
-            this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
-        } else {
-            this.state.editorState = EditorState.createEmpty();
+            // works with mockup string
+            // const content  = convertFromRaw(JSON.parse(test))
+            // console.log(content)
+            // const content = convertFromRaw(this.props.value)
+            console.log(props.value)
+            this.state = {
+                editorState: EditorState.createWithContent(props.value)
+            }
+        } catch (e) {
+            alert(e)
+            this.state = {
+                editorState: EditorState.createEmpty()
+            }
         }
+
+        // const content = null
+        //
+        // //const content = window.localStorage.getItem("content" + this.itsCounter);
+        // if (content) {
+        //     this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
+        // } else {
+        //     this.state.editorState = EditorState.createEmpty();
+        // }
         this.focus = () => this.refs.editor.focus();
-        this.onChange = (editorState) => this.setState({editorState});
+        this.onChange = (editorState) => {
+            this.setState({editorState})
+            this.props.submit(editorState)
+        };
 
         this.handleKeyCommand = (command) => this._handleKeyCommand(command);
         this.toggleBlockType = (type) => this._toggleBlockType(type);
         this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
     }
 
-    saveContent = (content) => {
-        content = this.state
-        //window.localStorage.setItem("content" + this.itsCounter, JSON.stringify(convertToRaw(content)));
+    saveContent() {
+        // this.props.submit(this.state.editorState)
     }
 
     _handleKeyCommand(command) {
@@ -541,11 +669,9 @@ class RichEditorExample extends React.Component {
     }
 
     onChange = (editorState) => {
-        const contentState = editorState.getCurrentContent();
-        console.log('content state', convertToRaw(contentState));
         this.setState({
             editorState,
-        });
+        })
     }
 
     render() {
@@ -554,9 +680,7 @@ class RichEditorExample extends React.Component {
         // If the user changes block type before entering any text, we can
         // either style the placeholder or hide it. Let's just hide it now.
         let className = 'RichEditor-editor';
-        var contentState = editorState.getCurrentContent();
-        this.saveContent(contentState);
-        console.log('content state', convertToRaw(contentState));
+        const contentState = editorState.getCurrentContent();
         if (!contentState.hasText()) {
             if (contentState.getBlockMap().first().getType() !== 'unstyled') {
                 className += ' RichEditor-hidePlaceholder';
@@ -579,106 +703,106 @@ class RichEditorExample extends React.Component {
                         editorState={editorState}
                         handleKeyCommand={this.handleKeyCommand}
                         onChange={this.onChange}
-                        onTab={this.onTab}
                         placeholder="Tell a story..."
                         ref="editor"
                         spellCheck={true}
                     />
                 </div>
+
             </div>
+
         );
     }
 }
 
-class RichEditorExampleText extends React.Component {
-
-    constructor(props) {
-
-        super(props);
-        this.state = {}
-        const content = null
-        //const content = window.localStorage.getItem("content" + this.itsCounter);
-        if (content) {
-            this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
-        } else {
-            this.state.editorState = EditorState.createEmpty();
-        }
-        this.focus = () => this.refs.editor.focus();
-        this.onChange = (editorState) => this.setState({editorState});
-
-        this.handleKeyCommand = (command) => this._handleKeyCommand(command);
-        this.toggleBlockType = (type) => this._toggleBlockType(type);
-        this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
-    }
-
-    _handleKeyCommand(command) {
-        const {editorState} = this.state;
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            this.onChange(newState);
-            return true;
-        }
-        return false;
-    }
-
-    _toggleBlockType(blockType) {
-        this.onChange(
-            RichUtils.toggleBlockType(
-                this.state.editorState,
-                blockType
-            )
-        );
-    }
-
-    _toggleInlineStyle(inlineStyle) {
-        this.onChange(
-            RichUtils.toggleInlineStyle(
-                this.state.editorState,
-                inlineStyle
-            )
-        );
-    }
-
-    onChange = (editorState) => {
-        const contentState = editorState.getCurrentContent();
-        console.log('content state', convertToRaw(contentState));
-        this.setState({
-            editorState,
-        });
-    }
-
-    render() {
-        const {editorState} = this.state;
-
-        // If the user changes block type before entering any text, we can
-        // either style the placeholder or hide it. Let's just hide it now.
-        let className = 'RichEditor-editor';
-        let classNameText = 'RichEditor-editor-Text';
-        var contentState = editorState.getCurrentContent();
-        console.log('content state', convertToRaw(contentState));
-        if (!contentState.hasText()) {
-            if (contentState.getBlockMap().first().getType() !== 'unstyled') {
-                className += ' RichEditor-hidePlaceholder';
-            }
-        }
-        return (
-            <div className="RichEditor-root">
-                <div className="RichEditor-editor RichEditor-editor-Text" onClick={this.focus}>
-                    <Editor
-                        blockStyleFn={getBlockStyle}
-                        customStyleMap={styleMap}
-                        editorState={editorState}
-                        handleKeyCommand={this.handleKeyCommand}
-                        onChange={this.onChange}
-                        onTab={this.onTab}
-                        spellCheck={true}
-                    />
-                </div>
-            </div>
-        );
-    }
-}
-
+// class RichEditorExampleText extends React.Component {
+//
+//     constructor(props) {
+//
+//         super(props);
+//         this.state = {}
+//         const content = null
+//         //const content = window.localStorage.getItem("content" + this.itsCounter);
+//         if (content) {
+//             this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
+//         } else {
+//             this.state.editorState = EditorState.createEmpty();
+//         }
+//         this.focus = () => this.refs.editor.focus();
+//         this.onChange = (editorState) => this.setState({editorState});
+//
+//         this.handleKeyCommand = (command) => this._handleKeyCommand(command);
+//         this.toggleBlockType = (type) => this._toggleBlockType(type);
+//         this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
+//     }
+//
+//     _handleKeyCommand(command) {
+//         const {editorState} = this.state;
+//         const newState = RichUtils.handleKeyCommand(editorState, command);
+//         if (newState) {
+//             this.onChange(newState);
+//             return true;
+//         }
+//         return false;
+//     }
+//
+//     _toggleBlockType(blockType) {
+//         this.onChange(
+//             RichUtils.toggleBlockType(
+//                 this.state.editorState,
+//                 blockType
+//             )
+//         );
+//     }
+//
+//     _toggleInlineStyle(inlineStyle) {
+//         this.onChange(
+//             RichUtils.toggleInlineStyle(
+//                 this.state.editorState,
+//                 inlineStyle
+//             )
+//         );
+//     }
+//
+//     onChange = (editorState) => {
+//         const contentState = editorState.getCurrentContent();
+//         console.log('content state', convertToRaw(contentState));
+//         this.setState({
+//             editorState,
+//         });
+//     }
+//
+//     render() {
+//         const {editorState} = this.state;
+//
+//         // If the user changes block type before entering any text, we can
+//         // either style the placeholder or hide it. Let's just hide it now.
+//         let className = 'RichEditor-editor';
+//         let classNameText = 'RichEditor-editor-Text';
+//         var contentState = editorState.getCurrentContent();
+//         console.log('content state', convertToRaw(contentState));
+//         if (!contentState.hasText()) {
+//             if (contentState.getBlockMap().first().getType() !== 'unstyled') {
+//                 className += ' RichEditor-hidePlaceholder';
+//             }
+//         }
+//         return (
+//             <div className="RichEditor-root">
+//                 <div className="RichEditor-editor RichEditor-editor-Text" onClick={this.focus}>
+//                     <Editor
+//                         blockStyleFn={getBlockStyle}
+//                         customStyleMap={styleMap}
+//                         editorState={editorState}
+//                         handleKeyCommand={this.handleKeyCommand}
+//                         onChange={this.onChange}
+//                         onTab={this.onTab}
+//                         spellCheck={true}
+//                     />
+//                 </div>
+//             </div>
+//         );
+//     }
+// }
 
 
 // Custom overrides for "code" style.
@@ -693,14 +817,16 @@ const styleMap = {
 
 function getBlockStyle(block) {
     switch (block.getType()) {
-        case 'blockquote': return 'RichEditor-blockquote';
-        default: return null;
+        case 'blockquote':
+            return 'RichEditor-blockquote';
+        default:
+            return null;
     }
 }
 
 class StyleButton extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.onToggle = (e) => {
             e.preventDefault();
             this.props.onToggle(this.props.style);
@@ -757,7 +883,7 @@ const BlockStyleControls = (props) => {
     );
 };
 
-var INLINE_STYLES = [
+const INLINE_STYLES = [
     {label: 'Bold', style: 'BOLD'},
     {label: 'Italic', style: 'ITALIC'},
     {label: 'Underline', style: 'UNDERLINE'},
@@ -765,7 +891,7 @@ var INLINE_STYLES = [
 ];
 
 const InlineStyleControls = (props) => {
-    var currentStyle = props.editorState.getCurrentInlineStyle();
+    const currentStyle = props.editorState.getCurrentInlineStyle();
     return (
         <div className="RichEditor-controls">
             {INLINE_STYLES.map(type =>
