@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
-import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils, ContentState} from "draft-js";
+import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils} from "draft-js";
 import draftToHtml from 'draftjs-to-html';
 
 
@@ -73,25 +73,6 @@ export class EditablePage extends Component {
         this.fetchContent()
     }
 
-    // async isAdmin() {
-    //     try {
-    //         const docRef = doc(fsDatabase, "user", auth.currentUser.uid.toString());
-    //         const docSnap = await getDoc(docRef)
-    //         if (docSnap.exists()) {
-    //             const userInfo = docSnap.data()
-    //             console.log("admin: " + userInfo.admin)
-    //             this.setState({
-    //                 userIsAdmin: userInfo.admin
-    //             })
-    //         } else {
-    //             alert("No such document!")
-    //         }
-    //
-    //     } catch (e) {
-    //         alert(e)
-    //     }
-    // }
-
     fetchContent() {
         // fetches the current database content of this page's table
         // if successful, updates this state with fetched data
@@ -99,11 +80,11 @@ export class EditablePage extends Component {
             if (snapshot.exists()) {
                 snapshot.forEach(node => {
                     let _node = new Object(node.val())
-                    console.log(_node)
+                    // console.log(_node)
                     let test = convertFromRaw(JSON.parse(node.val()['content']))
-                    console.log(test)
+                    // console.log(test)
                     _node['content'] = test
-                    console.log(_node)
+                    // console.log(_node)
                     this._listOfNodes[node.key] = _node
                     this._listOfKeys.push(node.key)
                 })
@@ -118,7 +99,7 @@ export class EditablePage extends Component {
                 console.log("No data available")
             }
         }).catch((error) => {
-            alert(error);
+            console.log(error)
         });
     }
 
@@ -136,17 +117,16 @@ export class EditablePage extends Component {
             try {
                 let tempMap = {}
                 Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
-                    let temp = value
-                    console.log("value", value.content)
-                    temp.content = JSON.stringify(convertToRaw(value.content))
+                    console.log("content", value)
                     tempMap[key] = value
-                    tempMap[key].content = temp.content
 
+                    console.log("tempmap nach content", tempMap)
                 })
                 Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
-                    // this is already converted to raw
+                    console.log("tobewritten", value)
                     tempMap[key] = value
                 })
+                console.log("1. tempmap: ", tempMap)
 
                 // 2. delete tbd boxes in state
                 let tempMap2 = {}
@@ -155,6 +135,7 @@ export class EditablePage extends Component {
                         tempMap2[key] = value
                     }
                 })
+                console.log("2. tempmap2: ", tempMap2)
 
                 // 3. update content order in state CoB (taking out blank positions)
                 Object.entries(tempMap2)
@@ -164,19 +145,34 @@ export class EditablePage extends Component {
                             value["position"] = (index + 1)
                         }
                     })
+                console.log("3. tempmap2: ", tempMap2)
 
-                // 4. update content in DB
+
+                // 4. Converting ContentState to raw String
+
+                console.log("4. dazwischen tempmap2: ", tempMap2)
+
+                Object.entries(tempMap2).forEach(([key, val]) => {
+                    let temp = {...val}
+                    console.log("4. in tempmap2 val", val)
+                    if ((typeof val.content !== 'string')) {
+                        temp.content = JSON.stringify(convertToRaw(val.content))
+                        tempMap2[key].content = temp.content
+                    }
+                })
+                console.log("4. nacher tempmap2: ", tempMap2)
+
+                // 5. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
                     this.setState({
                         toBeWrittenToDB: {},
                         toBeDeletedFromDB: [],
-                        contentOfBoxes: tempMap2
                     })
+                    this.fetchContent()
                     this.toggleEditMode()
                 })
             } catch (e) {
                 console.log(e)
-                alert(e)
             }
         } else {
             this.toggleEditMode()
@@ -206,7 +202,7 @@ export class EditablePage extends Component {
                         }
                     })
             } catch (e) {
-                alert(e)
+                console.log(e)
             }
         })
     }
@@ -218,15 +214,17 @@ export class EditablePage extends Component {
             let _position = this.state.listOfKeys.length + 1
             this.checkIfNodeExists(_position).then((pos) => {
                 let _path = "content" + pos.toString()
+                let _key = "abc" + pos.toString()
                 let _value = {
-                    "content": "Hier kannst du deinen Inhalt einfügen und anpassen. " +
-                        "Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo " +
-                        "der Fra-UAS automatisch eingefügt.",
-                    "title": "Titel", "position": pos
+                    "content": '{"blocks":[{"key":"' + _key + '","text":"Hier kannst du deinen Inhalt einfügen und anpassen. Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo der Fra-UAS automatisch eingefügt.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"eh9uq","text":"Falls du dieseBox doch nicht benötigst, kannst du sie mit dem Mülleimer wieder zum löschen freigeben.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+                    "title": "Titel",
+                    "position": pos
                 }
                 set(ref(rtDatabase, this.path + _path), _value).then(() => {
                     let tempMap = {...this.state.contentOfBoxes}
-                    tempMap[_path] = _value
+                    let temp = {..._value}
+                    temp.content = convertFromRaw(JSON.parse(_value.content))
+                    tempMap[_path] = temp
                     this.setState({
                         contentOfBoxes: tempMap
                     })
@@ -237,7 +235,7 @@ export class EditablePage extends Component {
                 })
             })
         } catch (e) {
-            alert(e)
+            console.log(e)
         }
     }
 
@@ -253,19 +251,31 @@ export class EditablePage extends Component {
                     }
                 })
 
-            let tempState = {}
+            let tempStateLocal = {}
+            let tempStateDB = {}
             tempList.forEach(([key, val]) => {
-                tempState[key] = val
+                console.log(val.content)
+                let temp = {...val}
+                console.log(temp.content)
+                tempStateLocal[key] = temp
             })
-            update(ref(rtDatabase, this.path), tempState).then(r => {
+            tempList.forEach(([key, val]) => {
+                let temp = {...val}
+                temp.content = JSON.stringify(convertToRaw(val.content))
+                tempStateDB[key] = val
+                tempStateDB[key].content = temp.content
+            })
+            console.log("tempDB: ", tempStateDB)
+            console.log("tempLocal: ", tempStateLocal)
+            update(ref(rtDatabase, this.path), tempStateDB).then(r => {
                 this.setState({
-                    contentOfBoxes: tempState
+                    contentOfBoxes: tempStateLocal
                 })
             })
 
         } catch
             (e) {
-            alert(e)
+            console.log(e)
         }
     }
 
@@ -297,7 +307,7 @@ export class EditablePage extends Component {
                 })
             }
         } catch (e) {
-            alert(e)
+            console.log(e)
         }
     }
 
@@ -320,7 +330,8 @@ export class EditablePage extends Component {
                                 submitData={this.receiveChildData}
                             />
                             {
-                                this.state.userIsAdmin && !editToggled ?
+                                // this.state.userIsAdmin && !editToggled ?
+                                !editToggled ?
                                     (index + 1) !== array.length ?
                                         <button className="editable-material-button swap icons-container"
                                                 onClick={() => this.swapPosition(key)}>
@@ -395,6 +406,7 @@ export class InfoBox extends Component {
         this.state = {
             _title: "",
             _content: "",
+            body: "",
             deleteCheck: false,
             sentCheck: false
         };
@@ -405,21 +417,29 @@ export class InfoBox extends Component {
     }
 
     componentDidMount() {
-        // this.setState({
-        //     _title: this.props.title,
-        //     _content: ContentState.createFromText(this.props.content),
-        // })
+        const _body = this.convertToHTML()
         this.setState({
             _title: this.props.title,
-            _content: this.props.content
+            _content: this.props.content,
+            body: _body
         })
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.toggle !== prevProps.toggle) {
+        if (this.props.content !== prevProps.content) {
+            const _body = this.convertToHTML()
             this.setState({
                 _title: this.props.title,
                 _content: this.props.content,
+                body: _body,
+            })
+        }
+        if (this.props.toggle !== prevProps.toggle) {
+            const _body = this.convertToHTML()
+            this.setState({
+                _title: this.props.title,
+                _content: this.props.content,
+                body: _body,
                 deleteCheck: false,
                 sentCheck: false
             })
@@ -438,7 +458,7 @@ export class InfoBox extends Component {
             }
             this.props.submitData({[this.props.path]: node})
         } catch (e) {
-            alert(e)
+            console.log(e)
         }
     }
 
@@ -471,24 +491,19 @@ export class InfoBox extends Component {
     }
 
     convertToHTML() {
-        // doesnt work yet
+        // todo: check ungewollte html-tags
+
         try {
-            console.log("in convert: ", this.state.editorState.getCurrentContent())
-            const _body = draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
-            console.log("in convert: ", _body)
-            this.setState({
-                body: _body
-            })
+
+            return <div dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.props.content))}}></div>
         } catch (e) {
-            alert(e)
+            console.log(e)
         }
     }
 
 
     render() {
 
-        // todo: zwischenschritt check ungewollte html-tags
-        let _content = <div dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.props.content))}} ></div>
         return (
             <div className="content-box">
 
@@ -542,10 +557,10 @@ export class InfoBox extends Component {
                     this.props.title !== "" ?
                         <div>
                             <h1 className="primary editable-t">{this.props.title}</h1>
-                            <div className="text editable-p">{this.state.body != null ? this.state.body : _content}</div>
+                            <div className="text editable-p">{this.state.body}</div>
                         </div> :
                         <div>
-                            <div className="text editable">{_content}</div>
+                            <div className="text editable">{this.state.body}</div>
                         </div>}
             </div>
 
@@ -560,61 +575,57 @@ class RichEditorExample extends React.Component {
     constructor(props) {
         super(props);
         try {
-            const test = '{' +
-                '      "entityMap": {},' +
-                '      "blocks": [' +
-                '        {' +
-                '          "key": "e4brl",' +
-                '          "text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",' +
-                '          "type": "unstyled",' +
-                '          "depth": 0,' +
-                '          "inlineStyleRanges": [' +
-                '            {' +
-                '              "offset": 0,' +
-                '              "length": 11,' +
-                '              "style": "BOLD"' +
-                '            },' +
-                '            {' +
-                '              "offset": 28,' +
-                '              "length": 29,' +
-                '              "style": "BOLD"' +
-                '            },' +
-                '            {' +
-                '              "offset": 12,' +
-                '              "length": 15,' +
-                '              "style": "ITALIC"' +
-                '            },' +
-                '            {' +
-                '              "offset": 28,' +
-                '              "length": 28,' +
-                '              "style": "ITALIC"' +
-                '            }' +
-                '          ],' +
-                '          "entityRanges": [],' +
-                '          "data": {}' +
-                '        },' +
-                '        {' +
-                '          "key": "3bflg",' +
-                '          "text": "Aenean commodo ligula eget dolor.",' +
-                '          "type": "unstyled",' +
-                '          "depth": 0,' +
-                '          "inlineStyleRanges": [],' +
-                '          "entityRanges": [],' +
-                '          "data": {}' +
-                '        }' +
-                '      ]' +
-                '    }'
+            // const test = '{' +
+            //     '      "entityMap": {},' +
+            //     '      "blocks": [' +
+            //     '        {' +
+            //     '          "key": "e4brl",' +
+            //     '          "text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",' +
+            //     '          "type": "unstyled",' +
+            //     '          "depth": 0,' +
+            //     '          "inlineStyleRanges": [' +
+            //     '            {' +
+            //     '              "offset": 0,' +
+            //     '              "length": 11,' +
+            //     '              "style": "BOLD"' +
+            //     '            },' +
+            //     '            {' +
+            //     '              "offset": 28,' +
+            //     '              "length": 29,' +
+            //     '              "style": "BOLD"' +
+            //     '            },' +
+            //     '            {' +
+            //     '              "offset": 12,' +
+            //     '              "length": 15,' +
+            //     '              "style": "ITALIC"' +
+            //     '            },' +
+            //     '            {' +
+            //     '              "offset": 28,' +
+            //     '              "length": 28,' +
+            //     '              "style": "ITALIC"' +
+            //     '            }' +
+            //     '          ],' +
+            //     '          "entityRanges": [],' +
+            //     '          "data": {}' +
+            //     '        },' +
+            //     '        {' +
+            //     '          "key": "3bflg",' +
+            //     '          "text": "Aenean commodo ligula eget dolor.",' +
+            //     '          "type": "unstyled",' +
+            //     '          "depth": 0,' +
+            //     '          "inlineStyleRanges": [],' +
+            //     '          "entityRanges": [],' +
+            //     '          "data": {}' +
+            //     '        }' +
+            //     '      ]' +
+            //     '    }'
 
-            // works with mockup string
-            // const content  = convertFromRaw(JSON.parse(test))
-            // console.log(content)
-            // const content = convertFromRaw(this.props.value)
             console.log(props.value)
             this.state = {
                 editorState: EditorState.createWithContent(props.value)
             }
         } catch (e) {
-            alert(e)
+            console.log(e)
             this.state = {
                 editorState: EditorState.createEmpty()
             }
@@ -637,10 +648,6 @@ class RichEditorExample extends React.Component {
         this.handleKeyCommand = (command) => this._handleKeyCommand(command);
         this.toggleBlockType = (type) => this._toggleBlockType(type);
         this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
-    }
-
-    saveContent() {
-        // this.props.submit(this.state.editorState)
     }
 
     _handleKeyCommand(command) {

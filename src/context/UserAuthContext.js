@@ -7,7 +7,7 @@ import "firebase/compat/firestore";
 import "firebase/compat/auth";
 import {useNavigate} from "react-router-dom";
 
-const userAuthContext = createContext();
+const userAuthContext = createContext()
 
 
 export function UserAuthContextProvider({children}) {
@@ -34,7 +34,7 @@ export function UserAuthContextProvider({children}) {
                 } else {
                     alert("No document for this UID");
                 }
-                navigate("/home")  // todo: not happy having this here, should be in Login.js / handleSubmit, but works for now
+                navigate("/home")
             } catch (e) {
                 alert(e)
             }
