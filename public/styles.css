@@ -35,6 +35,12 @@ header {
   letter-spacing: 3px;
   color: #1a1a1a;
 }
+.homeTest{
+  min-height: 100vh;
+  display: flex;
+  justify-content: space-around;
+}
+
 
 .change-language a {
   position: absolute;
