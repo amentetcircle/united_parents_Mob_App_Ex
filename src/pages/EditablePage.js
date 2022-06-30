@@ -330,8 +330,7 @@ export class EditablePage extends Component {
                                 submitData={this.receiveChildData}
                             />
                             {
-                                // this.state.userIsAdmin && !editToggled ?
-                                !editToggled ?
+                                this.state.userIsAdmin && !editToggled ?
                                     (index + 1) !== array.length ?
                                         <button className="editable-material-button swap icons-container"
                                                 onClick={() => this.swapPosition(key)}>
@@ -631,14 +630,6 @@ class RichEditorExample extends React.Component {
             }
         }
 
-        // const content = null
-        //
-        // //const content = window.localStorage.getItem("content" + this.itsCounter);
-        // if (content) {
-        //     this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
-        // } else {
-        //     this.state.editorState = EditorState.createEmpty();
-        // }
         this.focus = () => this.refs.editor.focus();
         this.onChange = (editorState) => {
             this.setState({editorState})
@@ -696,6 +687,7 @@ class RichEditorExample extends React.Component {
                 className += ' RichEditor-hidePlaceholder';
             }
         }
+        className += ' editor-content'
         return (
             <div className="RichEditor-root">
                 <BlockStyleControls

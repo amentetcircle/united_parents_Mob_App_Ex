@@ -607,6 +607,11 @@ a.forgot-password { font-size: 15px; }
   horiz-align: right;
 }
 
+.editor-content {
+  position: relative;
+  text-align: left;
+}
+
 
 /* ---------- Search User Content ---------- */
 /* Hide Spinners from Number input */
