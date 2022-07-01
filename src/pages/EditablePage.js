@@ -1,9 +1,8 @@
 import React, {Component} from "react";
 import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
-import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils} from "draft-js";
+import {convertFromRaw, convertToRaw, CompositeDecorator,Editor, EditorState, RichUtils} from "draft-js";
 import draftToHtml from 'draftjs-to-html';
-
 
 /*
 * draft.js
@@ -311,6 +310,7 @@ export class EditablePage extends Component {
         }
     }
 
+
     render() {
 
         const editToggled = this.state.editMode
@@ -537,10 +537,10 @@ export class InfoBox extends Component {
                                   value={this.state._content}
                                   onChange={this.handleInputChange}>
                                 </textarea>*/}
-                            <RichEditorExample
+                            <RichEditor
                                 value={this.props.content}
                                 submit={this.receiveEditorState}>
-                            </RichEditorExample>
+                            </RichEditor>
                         </div>
                         {this.state.sentCheck ?
                             <button className="editable-material-button icons-container" type="submit"
@@ -568,8 +568,8 @@ export class InfoBox extends Component {
     }
 }
 
-
-class RichEditorExample extends React.Component {
+// editor similar to https://codepen.io/AvanthikaMeenakshi/pen/MWWpOJz
+class RichEditor extends React.Component {
 
     constructor(props) {
         super(props);
@@ -621,12 +621,16 @@ class RichEditorExample extends React.Component {
 
             console.log(props.value)
             this.state = {
-                editorState: EditorState.createWithContent(props.value)
+                editorState: EditorState.createWithContent(props.value),
+                showURLInput: false,
+                urlValue: '',
             }
         } catch (e) {
             console.log(e)
             this.state = {
-                editorState: EditorState.createEmpty()
+                editorState: EditorState.createEmpty(),
+                showURLInput: false,
+                urlValue: '',
             }
         }
 
@@ -675,8 +679,88 @@ class RichEditorExample extends React.Component {
         })
     }
 
-    render() {
+    // main URL part is from this website https://codesandbox.io/s/nz8fj?file=/src/index.js
+    onURLChange = (e) => this.setState({urlValue: e.target.value});
+
+    promptForLink = (e) =>{
+        e.preventDefault();
         const {editorState} = this.state;
+        const selection = editorState.getSelection();
+        if (!selection.isCollapsed()) {
+            const contentState = editorState.getCurrentContent();
+            const startKey = editorState.getSelection().getStartKey();
+            const startOffset = editorState.getSelection().getStartOffset();
+            const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+            const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
+            let url = '';
+            if (linkKey) {
+                const linkInstance = contentState.getEntity(linkKey);
+                url = linkInstance.getData().url;
+            }
+            this.setState({
+                showURLInput: true,
+                urlValue: url,
+            }, () => {
+                setTimeout(() => this.refs.url.focus(), 0);
+            });
+        }
+    }
+
+
+    confirmLink = (e) => {
+        e.preventDefault();
+        const {editorState, urlValue} = this.state;
+        const contentState = editorState.getCurrentContent();
+
+        const contentStateWithEntity = contentState.createEntity(
+            'LINK',
+            'MUTABLE',
+            {url: urlValue}
+        );
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+        if(urlValue === ""){
+            this.refs.editor.focus()
+            this.setState({
+                showURLInput: false,
+            })
+            return;
+        }
+
+        // Apply entity
+        let nextEditorState = EditorState.set(editorState,
+            { currentContent: contentStateWithEntity }
+        );
+
+        // Apply selection
+        nextEditorState = RichUtils.toggleLink( nextEditorState,
+            nextEditorState.getSelection(), entityKey
+        );
+
+        this.setState({
+            editorState: nextEditorState,
+            showURLInput: false,
+            urlValue: '',
+        }, () => {
+            setTimeout(() => this.refs.editor.focus(), 0);
+        });
+    }
+
+    onLinkInputKeyDown = (e) => { if (e.which === 13) { this.confirmLink(e); } }
+
+    removeLink = (e) => {
+        e.preventDefault();
+        const {editorState} = this.state;
+        const selection = editorState.getSelection();
+        if (!selection.isCollapsed()) {
+            this.setState({
+                editorState: RichUtils.toggleLink(editorState, selection, null),
+            });
+        }
+    }
+
+    render() {
+        const {editorState, showURLInput} = this.state;
 
         // If the user changes block type before entering any text, we can
         // either style the placeholder or hide it. Let's just hide it now.
@@ -687,6 +771,21 @@ class RichEditorExample extends React.Component {
                 className += ' RichEditor-hidePlaceholder';
             }
         }
+        let urlInput;
+        if (showURLInput) {
+            urlInput =
+                <div>
+                    <input
+                        onChange={this.onURLChange}
+                        ref="url"
+                        type="text"
+                        value={this.state.urlValue}
+                        onKeyDown={this.onLinkInputKeyDown}
+                    />
+                    <button onMouseDown={this.confirmLink}> Confirm </button>
+                </div>;
+        }
+
         className += ' editor-content'
         return (
             <div className="RichEditor-root">
@@ -698,8 +797,21 @@ class RichEditorExample extends React.Component {
                     editorState={editorState}
                     onToggle={this.toggleInlineStyle}
                 />
-                <div className={className} onClick={this.focus}>
+                <span
+                    className = 'RichEditor-styleButton'
+                    onMouseDown={this.promptForLink}
+                    style={{marginRight: 10}}>
+                    Add Link
+                </span>
+                <span
+                    className = 'RichEditor-styleButton'
+                    onMouseDown={this.removeLink}>
+                    Remove Link
+                </span>
+                {urlInput}
+                <div className={className}>
                     <Editor
+                        onClick={this.focus}
                         blockStyleFn={getBlockStyle}
                         customStyleMap={styleMap}
                         editorState={editorState}
@@ -710,102 +822,11 @@ class RichEditorExample extends React.Component {
                         spellCheck={true}
                     />
                 </div>
-
             </div>
 
         );
     }
 }
-
-// class RichEditorExampleText extends React.Component {
-//
-//     constructor(props) {
-//
-//         super(props);
-//         this.state = {}
-//         const content = null
-//         //const content = window.localStorage.getItem("content" + this.itsCounter);
-//         if (content) {
-//             this.state.editorState = EditorState.createWithContent(convertFromRaw(JSON.parse(content)));
-//         } else {
-//             this.state.editorState = EditorState.createEmpty();
-//         }
-//         this.focus = () => this.refs.editor.focus();
-//         this.onChange = (editorState) => this.setState({editorState});
-//
-//         this.handleKeyCommand = (command) => this._handleKeyCommand(command);
-//         this.toggleBlockType = (type) => this._toggleBlockType(type);
-//         this.toggleInlineStyle = (style) => this._toggleInlineStyle(style);
-//     }
-//
-//     _handleKeyCommand(command) {
-//         const {editorState} = this.state;
-//         const newState = RichUtils.handleKeyCommand(editorState, command);
-//         if (newState) {
-//             this.onChange(newState);
-//             return true;
-//         }
-//         return false;
-//     }
-//
-//     _toggleBlockType(blockType) {
-//         this.onChange(
-//             RichUtils.toggleBlockType(
-//                 this.state.editorState,
-//                 blockType
-//             )
-//         );
-//     }
-//
-//     _toggleInlineStyle(inlineStyle) {
-//         this.onChange(
-//             RichUtils.toggleInlineStyle(
-//                 this.state.editorState,
-//                 inlineStyle
-//             )
-//         );
-//     }
-//
-//     onChange = (editorState) => {
-//         const contentState = editorState.getCurrentContent();
-//         console.log('content state', convertToRaw(contentState));
-//         this.setState({
-//             editorState,
-//         });
-//     }
-//
-//     render() {
-//         const {editorState} = this.state;
-//
-//         // If the user changes block type before entering any text, we can
-//         // either style the placeholder or hide it. Let's just hide it now.
-//         let className = 'RichEditor-editor';
-//         let classNameText = 'RichEditor-editor-Text';
-//         var contentState = editorState.getCurrentContent();
-//         console.log('content state', convertToRaw(contentState));
-//         if (!contentState.hasText()) {
-//             if (contentState.getBlockMap().first().getType() !== 'unstyled') {
-//                 className += ' RichEditor-hidePlaceholder';
-//             }
-//         }
-//         return (
-//             <div className="RichEditor-root">
-//                 <div className="RichEditor-editor RichEditor-editor-Text" onClick={this.focus}>
-//                     <Editor
-//                         blockStyleFn={getBlockStyle}
-//                         customStyleMap={styleMap}
-//                         editorState={editorState}
-//                         handleKeyCommand={this.handleKeyCommand}
-//                         onChange={this.onChange}
-//                         onTab={this.onTab}
-//                         spellCheck={true}
-//                     />
-//                 </div>
-//             </div>
-//         );
-//     }
-// }
-
 
 // Custom overrides for "code" style.
 const styleMap = {

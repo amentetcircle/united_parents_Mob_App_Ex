@@ -18,6 +18,7 @@ function ChatRooms(){
             <OpenChat1 currentID={currentID}/>
             <OpenChat2 currentID={currentID}/>
         </div>
+
         );
 }
 

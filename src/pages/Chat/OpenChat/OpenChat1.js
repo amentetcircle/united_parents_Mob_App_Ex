@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from "react";
 
-import {collection, onSnapshot, query, where} from "firebase/firestore";
-import {fsDatabase} from "../../../Firebase";
+import {addDoc, collection, onSnapshot, query, where} from "firebase/firestore";
+import {auth, fsDatabase} from "../../../Firebase";
 import {streamChats1} from "./Firestore/firestore";
 import Messages from "../Messages";
+import firebase from "firebase/compat/app";
 
+var globalChatID = null
 
 function OpenChat1(props) {
 
@@ -24,17 +26,20 @@ function OpenChat1(props) {
                 (error) => setError('Load Messages failed')
             );
 
-
     const ChatElements1 = chats.map((m, i) =>
-        <div key={i}>{m.ID2}
-        <button onClick={()=> setChatIDNew(m.chatID)}>CLick</button>
-    </div>)
-
+        <div className="chat-overview" onClick={() => globalChatID = m.chatID}>
+            <img className="round-image" src="https://i.pravatar.cc/200"></img>
+            <div className="text-wrapper-overview">
+                <p className="user-name">{m.ID2}</p>
+                {/*<p className="last-message">{this.lastMessage.text}</p>*/}
+                <p className="timestamp-overview">{"this.lastDate"}</p>
+            </div>
+        </div>
+    );
     return (
         <div>
             <di>{ChatElements1}</di>
-
-            <Messages chatID={chatIDNew}/>
+            <Messages chatID={globalChatID}/>
         </div>
     );
 }

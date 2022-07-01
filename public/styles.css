@@ -832,7 +832,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .RichEditor-styleButton {
-  color: #999;
+  color: #000000;
   cursor: pointer;
   margin-right: 16px;
   padding: 2px 0;

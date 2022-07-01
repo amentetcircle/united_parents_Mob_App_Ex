@@ -2,6 +2,11 @@ import Picker from "emoji-picker-react";
 import React, {useState} from "react";
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
+import {auth, fsDatabase} from "../Firebase";
+import {streamChats1} from "./Chat/OpenChat/Firestore/firestore";
+import Messages from "./Chat/Messages";
+import {collection, getDocs, query, where} from "firebase/firestore";
+
 
 
 /*export const streamMessages = (chatID, snapshot, error) =>{
@@ -10,11 +15,21 @@ import "firebase/compat/auth";
     return onSnapshot(qMes, snapshot, error)
 }*/
 
+async function test() {
+    const userID = auth.currentUser.uid
+    const q1 = query(collection(fsDatabase, "chats"), where("ID1", "==", userID))
+    const querySnapshot = await getDocs(q1);
+    querySnapshot.forEach((doc)=> {
+        newChats.push(new Chat(doc.data().ID2, "Ranz","Ratte","Weil",newMessages))
+        document.getElementById("chat-list-box").appendChild(newChats[newChats.length - 1].addToOverviewByID())
+    })
+}
 
 //Tim Finmans
 function Start() {
     // will be called when the chat area is entered
     document.addEventListener('keypress', keyPress);
+    test()
 
     //Maximilian Fay Not fully functional part
    /*
@@ -211,6 +226,9 @@ function Start() {
     */
 //Maximilian Fay Not fully functional
 
+
+
+    /*
     return (
 
         <div id="whole-chat-view" className="whole-chat">
@@ -238,7 +256,7 @@ function Start() {
             <button onClick={()=>(newChats[5].addNotification())}>CLK</button>
             <button onClick={()=>(newChats[6].addNotification())}>CLK</button>
         </div>
-    );
+    );*/
 }
 
 var codesForUI = [1];
@@ -260,11 +278,13 @@ class Chat {
         this.lastDate = lastDate;
         this.codeForUI = codesForUI[codesForUI.length - 1] + 1;
         codesForUI.push(codesForUI[codesForUI.length - 1] + 1);
-        messages.map(message=>{
-            this.messages.push(message)
-            }
-        )
-        this.lastMessage = this.messages[(this.messages.length - 1)]
+        if(messages !== null) {
+            messages.map(message=>{
+                    this.messages.push(message)
+                }
+            )
+            this.lastMessage = this.messages[(this.messages.length - 1)]
+        }
     }
 
     // add the chats that were already opened and can be chosen from the array
@@ -273,12 +293,32 @@ class Chat {
             <div id={this.codeForUI} className="chat-overview" onClick={()=>this.renderChat()}>
                 <img className="round-image" src="https://i.pravatar.cc/200"></img>
                 <div className="text-wrapper-overview">
-                    <p className="user-name">{this.name}</p>
-                    <p className="last-message">{this.lastMessage.text}</p>
+                    <p className="user-name">{this.idReceiver}</p>
+                    {/*<p className="last-message">{this.lastMessage.text}</p>*/}
                     <p className="timestamp-overview">{this.lastDate}</p>
                 </div>
             </div>
         );
+    }
+
+    addToOverviewByID() {
+        let div = document.createElement("div");
+        div.id = this.codeForUI
+        div.className = "chat-overview"
+        div.onclick = ()=>this.renderChat()
+        let img = document.createElement("img")
+        img.className = "round-image"
+        img.src = "https://i.pravatar.cc/200"
+        let innerDiv = document.createElement("div")
+        innerDiv.className = "text-wrapper-overview"
+        let p1 = document.createElement("p")
+        p1.className = "user-name"
+        p1.textContent = this.idReceiver
+        innerDiv.appendChild(p1)
+        div.appendChild(img)
+        div.appendChild(innerDiv)
+
+        return div
     }
 
     // render a specific chat when a chat was clicked
