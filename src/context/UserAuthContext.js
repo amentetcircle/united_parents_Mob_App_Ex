@@ -54,28 +54,66 @@ export function UserAuthContextProvider({children}) {
     return (
         <userAuthContext.Provider
             value={{
-            user,
-            register,
-            login,
-                isAdmin
-        }}>
+                user,
+                register,
+                login,
+                isAdmin,
+            }}>
             {children}
         </userAuthContext.Provider>
     );
 }
 
-export const createUserDocument = async (users, admin) =>{
-    if(!users)return;
+export const createUserDocument = async (users, admin, firstName, lastName, birthday, university) => {
+    if (!users) return;
 
-    const userRef = doc(fsDatabase,"user", users.uid);
+    const userRef = doc(fsDatabase, "user", users.uid);
     const snapshot = await getDoc(userRef);
+    let data
+    if (admin) {
+        data = {
+            email: users.email,
+            userID: users.uid,
+            admin: true,
+            firstName: "",
+            lastName: "",
+            birthday: "",
+            university: university
+        }
+    } else {
+        data = {
+            email: users.email,
+            userID: users.uid,
+            admin: false,
+            firstName: firstName,
+            lastName: lastName,
+            birthday: birthday,
+            university: university
+        }
+    }
 
-    if(!snapshot.exists()){
-        await setDoc(userRef, {
-            email:users.email,
-            userID:users.uid,
-            admin: admin
-        });
+    if (!snapshot.exists()) {
+        await setDoc(userRef, data);
+    }
+}
+
+export const createAdminDocument = async (users, university) => {
+    if (!users) return;
+
+    const userRef = doc(fsDatabase, "user", users.uid);
+    const snapshot = await getDoc(userRef);
+    const data = {
+        email: users.email,
+        userID: users.uid,
+        admin: true,
+        firstName: "",
+        lastName: "",
+        birthday: "",
+        university: university
+    }
+
+    if (!snapshot.exists()) {
+        await setDoc(userRef, data);
     }
 }
 

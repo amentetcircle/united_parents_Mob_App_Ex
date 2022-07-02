@@ -26,18 +26,8 @@ import draftToHtml from 'draftjs-to-html';
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
-// all changes on this page by Katharina Zirkler
-
-// done: only show edit button / restric pages if user is admin
-// tobedone: format input (font style, ....) -> ready-to-use editor => Tim
-//       caution: DB can only store plain text!
-// done: fix text overflow with words longer than width
-// todo: remove box immediately when pressing delete?
-// todo: toggle delete without abbrechen
-// done: wrap words longer than field
-// done: addBox with exemplary content
-
+// EditablePage & Infobox by Katharina Zirkler
+// RichEditorExample by Tim Finmans
 
 export class EditablePage extends Component {
 
@@ -80,9 +70,8 @@ export class EditablePage extends Component {
                 snapshot.forEach(node => {
                     let _node = new Object(node.val())
                     // console.log(_node)
-                    let test = convertFromRaw(JSON.parse(node.val()['content']))
                     // console.log(test)
-                    _node['content'] = test
+                    _node['content'] = convertFromRaw(JSON.parse(node.val()['content']))
                     // console.log(_node)
                     this._listOfNodes[node.key] = _node
                     this._listOfKeys.push(node.key)

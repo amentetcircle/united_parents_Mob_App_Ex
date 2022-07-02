@@ -1,23 +1,12 @@
 import React, {useState} from "react";
 
-import  {fsDatabase, auth} from "../Firebase";
-import { getDatabase, ref, set } from "firebase/database";
+import {auth} from "../Firebase";
 
-import {Form, Button, Card, Alert, FormCheck} from 'react-bootstrap'
+import {Alert, Button, Card, Form} from 'react-bootstrap'
 import {Link, useNavigate} from 'react-router-dom'
 import {createUserDocument, useUserAuth} from "../context/UserAuthContext"
-import {createUserWithEmailAndPassword} from "firebase/auth";
+import {createUserWithEmailAndPassword} from "firebase/auth"
 
-/**
- * TODO: add the following to the form:
- * Vorname
- * Nachname
- * PLZ
- * Hochschule/Standort
- * Studiengang
- * 
- * TODO: send verification E-Mail to the user, only after that a user can login
- */
 
 const Registration = () => {
     const [email,
@@ -26,34 +15,50 @@ const Registration = () => {
         setPassword] = useState("")
     const [displayName, setDisplayName] = useState("")
     const [admin, setAdmin] = useState(false)
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [birthday, setBirthday] = useState("")
+    const [university, setUniversity] = useState("Fra-UAS")
     const {register} = useUserAuth()
     const [error,
         setError] = useState("")
     const navigate = useNavigate()
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
-        alert(admin)
-
         try {
+            if (admin) {
+                const body = email + " von der " + university +
+                    " möchte gerne Admin für United Parents werden.\nErlauben? /akzeptierLink/\nVerwerfen? /ablehnLink/"
+
+                window.location.href = "mailto:k.zirkler@gmx.net?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
+            }
+
             const {user} = await createUserWithEmailAndPassword(
                 auth,
                 email,
                 password
-            );
-            await createUserDocument(user, admin, {displayName});
-            navigate("/")
-        }catch (err) {
-            setError(err.message);
+            )
+            await createUserDocument(user, admin, firstName, lastName, birthday, university)
 
+            navigate("/")
+        } catch (err) {
+            setError(err.message)
         }
     }
 
+
     // Katharina Zirkler
-    const handleCheckbox = (event) => {
-        alert(event.target.checked)
-        setAdmin(event.target.checked)
+    // const handleCheckbox = (event) => {
+    //     setAdmin(event.target.checked)
+    // }
+
+    const toggleAdmin = () => {
+        setAdmin(!admin)
+        setFirstName("")
+        setLastName("")
+        setBirthday("")
     }
 
 
@@ -69,6 +74,7 @@ const Registration = () => {
                         <Form.Group id="email">
                             <Form.Label>E-Mail</Form.Label>
                             <Form.Control
+                                required
                                 type="email"
                                 placeholder="E-Mail Adresse"
                                 onChange={(e) => setEmail(e.target.value)}/>
@@ -77,6 +83,7 @@ const Registration = () => {
                         <Form.Group id="password">
                             <Form.Label>Passwort</Form.Label>
                             <Form.Control
+                                required
                                 type="password"
                                 placeholder="Passwort"
                                 onChange={(e) => setPassword(e.target.value)}/>
@@ -84,14 +91,60 @@ const Registration = () => {
 
                         <Form.Group id="rePassword">
                             <Form.Label>Passwort Wiederholen</Form.Label>
-                            <Form.Control type="Password" placeholder="Passwort wiederholen"/>
+                            <Form.Control
+                                required
+                                type="Password"
+                                placeholder="Passwort wiederholen"/>
+                        </Form.Group>
+
+                        {!admin ?
+                            <div>
+                                <Form.Group id="firstName">
+                                    <Form.Label>Vorname</Form.Label>
+                                    <Form.Control
+                                        required
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}/>
+                                </Form.Group>
+
+                                <Form.Group id="lastName">
+                                    <Form.Label>Nachname</Form.Label>
+                                    <Form.Control
+                                        required
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}/>
+                                </Form.Group>
+
+                                <Form.Group id="birthday">
+                                    <Form.Label>Geburtsdatum</Form.Label>
+                                    <Form.Control
+                                        required
+                                        type="date"
+                                        value={birthday}
+                                        onChange={(e) => setBirthday(e.target.value)}/>
+                                </Form.Group>
+                            </div>
+                            :
+                            null
+                        }
+
+                        <Form.Group id="uniPlace">
+                            <Form.Label>Hochschule und Standort</Form.Label>
+                            <Form.Control
+                                required
+                                as="select"
+                                value={university}
+                                onChange={(e) => setUniversity(e.target.value)}>
+                                <option value="FRA-UAS">FRA-UAS</option>
+                                <option value="Goethe Uni">Goethe Uni</option>
+                            </Form.Control>
                         </Form.Group>
 
                         {/*Katharina Zirkler*/}
-                        <Form.Group id="checkAdmin">
-                            <Form.Label>Als Admin registrieren?</Form.Label>
-                            <Form.Check checked={admin} onChange={handleCheckbox}/>
-                        </Form.Group>
+                        {/*<Form.Group id="checkAdmin">*/}
+                        {/*    <Form.Label>Als Admin registrieren?</Form.Label>*/}
+                        {/*    <Form.Check checked={admin} onChange={handleCheckbox}/>*/}
+                        {/*</Form.Group>*/}
 
                         <div className="d-grid gap-2">
                             <Button className="w-100" varient="primary" type="register">Registrieren</Button>
@@ -100,6 +153,17 @@ const Registration = () => {
                     </Form>
 
                 </Card.Body>
+                {admin ?
+                    <div className="w-100 text-center mt-2">
+                        Du möchtest einen User Account beantragen?<br></br>
+                        <Link to="/registration" onClick={() => toggleAdmin()}>User registrieren</Link>
+                    </div>
+                    :
+                    <div className="w-100 text-center mt-2">
+                        Du möchtest einen Admin Account beantragen?<br></br>
+                        <Link to="/registration" onClick={() => toggleAdmin()}>Administrator werden</Link>
+                    </div>
+                }
                 <div className="w-100 text-center mt-2">
                     Du hast bereits einen Account?<br></br>
                     <Link to="/">Log dich hier ein</Link>
@@ -107,30 +171,8 @@ const Registration = () => {
             </Card>
 
         </div>
-    );
+    )
+        ;
 }
 
 export default Registration;
-
-/*
-
-            <Form.Group id ="firstName" >
-                <Form.Label>Vorname</Form.Label>
-                <Form.Control type="firstName" ref = {firstNameref} required/>
-            </Form.Group>
-
-            <Form.Group id ="lastName" >
-                <Form.Label>Nachname</Form.Label>
-                <Form.Control type="lastName" ref = {lastNameRef} required/>
-            </Form.Group>
-
-            <Form.Group id ="birthday" >
-                <Form.Label>GeburtsDatum</Form.Label>
-                <Form.Control type="birthday" ref = {birthdayRef} required/>
-            </Form.Group>
-
-            <Form.Group id ="uniPlace" >
-                <Form.Label>Hochschule und Standort</Form.Label>
-                <Form.Control type="uniPlace" ref = {uniPlaceRef} required/>
-            </Form.Group>
-*/
