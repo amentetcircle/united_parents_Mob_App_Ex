@@ -11,6 +11,7 @@ import Help from "../pages/HelpFinances";
 import Settings from "../pages/Settings";
 import ProtectedRoutes from "./ProtectedRoutes";
 import Registration from "../pages/Registration";
+import VerifyAdmin from "../pages/VerifyAdmin";
 import SidebarLogReg from "./SidebarLogReg";
 import ChatsList from "../pages/ChatList";
 
@@ -29,20 +30,21 @@ function App() {
                             element={<ProtectedRoutes> <SearchUser/> </ProtectedRoutes>}/>
                         <Route
                             path="/chats"
-                            element={<ProtectedRoutes > <ChatsList/> </ProtectedRoutes>}/>
+                            element={<ProtectedRoutes> <ChatsList/> </ProtectedRoutes>}/>
                         <Route
                             path="/specific-chat"
                             element={<ProtectedRoutes> <Chats/> </ProtectedRoutes>}/>
                         <Route
                             path="/help-finances"
-                            element={<ProtectedRoutes > <Help/> </ProtectedRoutes>}/>
+                            element={<ProtectedRoutes> <Help/> </ProtectedRoutes>}/>
                         <Route
                             path="/settings"
-                            element={<ProtectedRoutes > <Settings/> </ProtectedRoutes>}/>
-                        <Route path="/home" element={<ProtectedRoutes > <Home/> </ProtectedRoutes>}/>
-                        <Route path="/" element={< Login />}/>
-                        <Route path="/logout" element={< Login />}/>
-                        <Route path="/registration" element={< Registration />}/>
+                            element={<ProtectedRoutes> <Settings/> </ProtectedRoutes>}/>
+                        <Route path="/home" element={<ProtectedRoutes> <Home/> </ProtectedRoutes>}/>
+                        <Route path="/" element={< Login/>}/>
+                        <Route path="/logout" element={<Login/>}/>
+                        <Route path="/registration" element={<Registration/>}/>
+                        <Route path="/verifyadmin/:uid" element={<VerifyAdmin/>}/>
                     </Routes>
 
                 </UserAuthContextProvider>

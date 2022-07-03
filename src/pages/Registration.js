@@ -4,7 +4,7 @@ import {auth} from "../Firebase";
 
 import {Alert, Button, Card, Form} from 'react-bootstrap'
 import {Link, useNavigate} from 'react-router-dom'
-import {createUserDocument, useUserAuth} from "../context/UserAuthContext"
+import {createUserDocument} from "../context/UserAuthContext"
 import {createUserWithEmailAndPassword} from "firebase/auth"
 
 
@@ -13,13 +13,11 @@ const Registration = () => {
         setEmail] = useState("")
     const [password,
         setPassword] = useState("")
-    const [displayName, setDisplayName] = useState("")
     const [admin, setAdmin] = useState(false)
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [birthday, setBirthday] = useState("")
     const [university, setUniversity] = useState("Fra-UAS")
-    const {register} = useUserAuth()
     const [error,
         setError] = useState("")
     const navigate = useNavigate()
@@ -38,10 +36,11 @@ const Registration = () => {
 
             if (admin) {
                 const body = email + " von der " + university +
-                    " möchte gerne Admin für United Parents werden.\nErlauben? /akzeptierLink/\nVerwerfen? /ablehnLink/"
+                    " möchte gerne Admin für United Parents werden.\nhttp://localhost:3000/verifyadmin/" + user.uid
 
                 window.location.href = "mailto:mobappex.project@gmail.com?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
             }
+
 
             navigate("/")
         } catch (err) {
@@ -173,7 +172,6 @@ const Registration = () => {
 
         </div>
     )
-        ;
 }
 
 export default Registration;

@@ -66,45 +66,29 @@ export function UserAuthContextProvider({children}) {
 
 export const createUserDocument = async (user, admin, firstName, lastName, birthday, university) => {
     if (!user) return;
-
+    console.log("lets go")
     try {
 
         const userRef = doc(fsDatabase, "user", user.uid);
         const snapshot = await getDoc(userRef);
-        if (admin) {
-            const data = {
-                email: user.email,
-                userID: user.uid,
-                admin: true,
-                firstName: "",
-                lastName: "",
-                birthday: "",
-                university: university
-            }
-            if (!snapshot.exists()) {
-                await setDoc(userRef, data);
-            }
-        } else {
-            const data = {
-                email: user.email,
-                userID: user.uid,
-                admin: false,
-                firstName: firstName,
-                lastName: lastName,
-                birthday: birthday,
-                university: university
-            }
-            if (!snapshot.exists()) {
-                await setDoc(userRef, data);
-            }
+
+        const data = {
+            email: user.email,
+            userID: user.uid,
+            admin: false,
+            firstName: firstName,
+            lastName: lastName,
+            birthday: birthday,
+            university: university
         }
-    }catch (e) {
+        if (!snapshot.exists()) {
+            await setDoc(userRef, data);
+        }
+
+    } catch (e) {
         console.log(e)
     }
-
-
 }
-
 
 export function useUserAuth() {
     return useContext(userAuthContext);

@@ -612,6 +612,18 @@ a.forgot-password { font-size: 15px; }
   text-align: left;
 }
 
+.verifyadmin-button {
+  margin-right: 20px;
+  position: relative;
+
+}
+
+.verifyadmin-button:active {
+  background-color: #489fb5;
+  box-shadow: 0 5px #cccccc;
+  transform: translateY(4px) translateX(2px);
+}
+
 
 /* ---------- Search User Content ---------- */
 /* Hide Spinners from Number input */
