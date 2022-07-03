@@ -11,9 +11,9 @@ const userAuthContext = createContext()
 
 
 export function UserAuthContextProvider({children}) {
-    const [user, setUser] = useState("");
+    const [user, setUser] = useState("")
     const [isAdmin, setAdmin] = useState(false)
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
 
     function register(email, password) {
@@ -29,12 +29,19 @@ export function UserAuthContextProvider({children}) {
                 const docSnap = await getDoc(docRef)
 
                 if (docSnap.exists()) {
-                    const admin = docSnap.data().admin
-                    setAdmin(admin)
+                    if (docSnap.data().verified) {
+                        const admin = docSnap.data().admin
+                        setAdmin(admin)
+                        // todo: here all other user infos (name, birthday, uni) could be set if needed
+                        navigate("/home")
+
+                    } else {
+                        alert("E-Mail Adresse noch nicht freigeschalten.")
+                        navigate("/")
+                    }
                 } else {
                     alert("No document for this UID");
                 }
-                navigate("/home")
             } catch (e) {
                 alert(e)
             }
@@ -81,6 +88,8 @@ export const createUserDocument = async (user, admin, firstName, lastName, birth
             birthday: birthday,
             university: university
         }
+        if (admin)
+            data.verified = false
         if (!snapshot.exists()) {
             await setDoc(userRef, data);
         }

@@ -31,7 +31,8 @@ const VerifyAdmin = () => {
     const updateUserDoc = async () => {
         try {
             const data = {
-                admin: true
+                admin: true,
+                verified: true
             }
 
             await updateDoc(doc(fsDatabase, "user", uid), data)
