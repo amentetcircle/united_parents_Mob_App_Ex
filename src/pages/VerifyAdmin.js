@@ -4,6 +4,7 @@ import {fsDatabase} from "../Firebase";
 import {useNavigate, useParams} from 'react-router-dom'
 import {deleteDoc, doc, getDoc, updateDoc} from "firebase/firestore";
 
+// all changes on this page by Katharina Zirkler
 const VerifyAdmin = () => {
 
     const {uid} = useParams()

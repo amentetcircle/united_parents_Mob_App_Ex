@@ -71,6 +71,7 @@ export function UserAuthContextProvider({children}) {
     );
 }
 
+// Maximilian Fay & Katharina Zirkler
 export const createUserDocument = async (user, admin, firstName, lastName, birthday, university) => {
     if (!user) return;
     console.log("lets go")
@@ -86,7 +87,8 @@ export const createUserDocument = async (user, admin, firstName, lastName, birth
             firstName: firstName,
             lastName: lastName,
             birthday: birthday,
-            university: university
+            university: university,
+            verified: true
         }
         if (admin)
             data.verified = false

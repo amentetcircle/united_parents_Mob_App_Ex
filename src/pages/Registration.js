@@ -7,6 +7,7 @@ import {Link, useNavigate} from 'react-router-dom'
 import {createUserDocument} from "../context/UserAuthContext"
 import {createUserWithEmailAndPassword} from "firebase/auth"
 
+// Katharina Zirkler
 
 const Registration = () => {
     const [email,
@@ -48,11 +49,6 @@ const Registration = () => {
         }
     }
 
-
-    // Katharina Zirkler
-    // const handleCheckbox = (event) => {
-    //     setAdmin(event.target.checked)
-    // }
 
     const toggleAdmin = () => {
         setAdmin(!admin)
