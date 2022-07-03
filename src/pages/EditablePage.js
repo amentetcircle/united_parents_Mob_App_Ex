@@ -1,8 +1,12 @@
 import React, {Component} from "react";
 import {child, get, ref, set, update} from "firebase/database";
 import {rtDatabase} from "../Firebase";
-import {convertFromRaw, convertToRaw, CompositeDecorator,Editor, EditorState, RichUtils} from "draft-js";
+import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils} from "draft-js";
 import draftToHtml from 'draftjs-to-html';
+
+
+// EditablePage & Infobox by Katharina Zirkler
+// RichEditorExample by Tim Finmans
 
 /*
 * draft.js
@@ -26,8 +30,6 @@ import draftToHtml from 'draftjs-to-html';
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// EditablePage & Infobox by Katharina Zirkler
-// RichEditorExample by Tim Finmans
 
 export class EditablePage extends Component {
 
@@ -201,10 +203,16 @@ export class EditablePage extends Component {
         try {
             let _position = this.state.listOfKeys.length + 1
             this.checkIfNodeExists(_position).then((pos) => {
-                let _path = "content" + pos.toString()
-                let _key = "abc" + pos.toString()
-                let _value = {
-                    "content": '{"blocks":[{"key":"' + _key + '","text":"Hier kannst du deinen Inhalt einfügen und anpassen. Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo der Fra-UAS automatisch eingefügt.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"eh9uq","text":"Falls du dieseBox doch nicht benötigst, kannst du sie mit dem Mülleimer wieder zum löschen freigeben.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+                const _path = "content" + pos.toString()
+                const _key1 = "abc" + pos.toString()
+                const _key2 = "def" + pos.toString()
+                const _value = {
+                    "content": '{"blocks":[{"key":"' + _key1 + '","text":"Hier kannst du deinen Inhalt einfügen' +
+                        ' und anpassen. Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo der' +
+                        ' Fra-UAS automatisch eingefügt.","type":"unstyled","depth":0,"inlineStyleRanges":[],' +
+                        '"entityRanges":[],"data":{}},{"key":"' + _key2 + '","text":"Falls du dieseBox doch nicht' +
+                        ' benötigst, kannst du sie mit dem Mülleimer wieder zum löschen freigeben.","type":"unstyled",' +
+                        '"depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
                     "title": "Titel",
                     "position": pos
                 }

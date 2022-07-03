@@ -64,58 +64,47 @@ export function UserAuthContextProvider({children}) {
     );
 }
 
-export const createUserDocument = async (users, admin, firstName, lastName, birthday, university) => {
-    if (!users) return;
+export const createUserDocument = async (user, admin, firstName, lastName, birthday, university) => {
+    if (!user) return;
 
-    const userRef = doc(fsDatabase, "user", users.uid);
-    const snapshot = await getDoc(userRef);
-    let data
-    if (admin) {
-        data = {
-            email: users.email,
-            userID: users.uid,
-            admin: true,
-            firstName: "",
-            lastName: "",
-            birthday: "",
-            university: university
+    try {
+
+        const userRef = doc(fsDatabase, "user", user.uid);
+        const snapshot = await getDoc(userRef);
+        if (admin) {
+            const data = {
+                email: user.email,
+                userID: user.uid,
+                admin: true,
+                firstName: "",
+                lastName: "",
+                birthday: "",
+                university: university
+            }
+            if (!snapshot.exists()) {
+                await setDoc(userRef, data);
+            }
+        } else {
+            const data = {
+                email: user.email,
+                userID: user.uid,
+                admin: false,
+                firstName: firstName,
+                lastName: lastName,
+                birthday: birthday,
+                university: university
+            }
+            if (!snapshot.exists()) {
+                await setDoc(userRef, data);
+            }
         }
-    } else {
-        data = {
-            email: users.email,
-            userID: users.uid,
-            admin: false,
-            firstName: firstName,
-            lastName: lastName,
-            birthday: birthday,
-            university: university
-        }
+    }catch (e) {
+        console.log(e)
     }
 
-    if (!snapshot.exists()) {
-        await setDoc(userRef, data);
-    }
+
 }
 
-export const createAdminDocument = async (users, university) => {
-    if (!users) return;
-
-    const userRef = doc(fsDatabase, "user", users.uid);
-    const snapshot = await getDoc(userRef);
-    const data = {
-        email: users.email,
-        userID: users.uid,
-        admin: true,
-        firstName: "",
-        lastName: "",
-        birthday: "",
-        university: university
-    }
-
-    if (!snapshot.exists()) {
-        await setDoc(userRef, data);
-    }
-}
 
 export function useUserAuth() {
     return useContext(userAuthContext);

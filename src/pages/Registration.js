@@ -28,19 +28,20 @@ const Registration = () => {
         e.preventDefault()
 
         try {
-            if (admin) {
-                const body = email + " von der " + university +
-                    " möchte gerne Admin für United Parents werden.\nErlauben? /akzeptierLink/\nVerwerfen? /ablehnLink/"
-
-                window.location.href = "mailto:k.zirkler@gmx.net?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
-            }
 
             const {user} = await createUserWithEmailAndPassword(
                 auth,
                 email,
                 password
             )
-            await createUserDocument(user, admin, firstName, lastName, birthday, university)
+            await createUserDocument(user, admin, firstName, lastName, birthday, university).then(() => console.log("doc created"))
+
+            if (admin) {
+                const body = email + " von der " + university +
+                    " möchte gerne Admin für United Parents werden.\nErlauben? /akzeptierLink/\nVerwerfen? /ablehnLink/"
+
+                window.location.href = "mailto:mobappex.project@gmail.com?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
+            }
 
             navigate("/")
         } catch (err) {
