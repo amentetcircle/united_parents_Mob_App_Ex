@@ -5,7 +5,8 @@ import { getRealtimeUsers } from './user.actions';
 import {getFirestore, setDoc, getDoc, doc, updateDoc} from "firebase/firestore";
 import { getAuth, updateProfile, onAuthStateChanged } from 'firebase/auth';
 import {auth} from "../../../Firebase";
-import {useNavigate} from "react-router-dom";
+//import {useNavigate} from "react-router-dom";
+import {createUserDocument} from "../../../context/UserAuthContext";
 
 export const signup = (user) => {
 
@@ -15,7 +16,21 @@ export const signup = (user) => {
 
         dispatch({type: `${authConstanst.USER_LOGIN}_REQUEST`});
 
-        await createUserWithEmailAndPassword(auth, user.email, user.password)
+        //await createUserWithEmailAndPassword(auth, user.email, user.password)
+
+        /*await createUserDocument(user, admin, firstName, lastName, birthday, university).then(() =>
+                console.log("doc created")
+            //dispatch(signup({email, password}))
+        )
+
+        if (user.admin) {
+            const body = user.email + " von der " + user.university +
+                " möchte gerne Admin für United Parents werden.\nhttp://localhost:3000/verifyadmin/" + user.uid
+
+            window.location.href = "mailto:mobappex.project@gmail.com?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
+        }
+
+
         /*.then(data => {
             console.log(data);
             const currentUser = auth.currentUser;
@@ -33,13 +48,13 @@ export const signup = (user) => {
                     uid: data.user.uid,
                     createdAt: new Date(),
                     isOnline: true
-                })*/
+                })
         const name = `${user.firstName} ${user.lastName}`;
 
         await updateProfile(auth.currentUser, {
             displayName: name
         })
-
+        const name = `${user.firstName} ${user.lastName}`;
         const docData = {
             firstName: user.firstName,
             lastName: user.lastName,
@@ -47,8 +62,9 @@ export const signup = (user) => {
             createdAt: new Date(),
             isOnline: true,
             displayName: name
-        }
-         await setDoc(doc(fsDatabase, "user", auth.currentUser.uid), docData)
+        }*/
+
+        // await setDoc(doc(fsDatabase, "user", auth.currentUser.uid), docData)
         const loggedInUser = {
             firstName: user.firstName,
             lastName: user.lastName,
@@ -98,21 +114,18 @@ export const signin = (user) => {
         /*const userRef = doc(fsDatabase, "user", auth.currentUser.uid);
         const tmp = auth.currentUser.uid;
         const test=0;
-
-        await updateDoc(userRef,{
-            isOnline: true
-        });*/
+*/
         //await signInWithEmailAndPassword(auth, user.email, user.password)
 
-        const userRef = doc(fsDatabase, "user", auth.currentUser.uid);
+        /*const userRef = doc(fsDatabase, "user", auth.currentUser.uid);
         const tmp = auth.currentUser.uid;
         const test=0;
 
         await updateDoc(userRef,{
             isOnline: true
-        });
+        });*/
 
-                onAuthStateChanged(auth, async (user) => {
+               // onAuthStateChanged(auth, async (user) => {
                     const uid = user.uid;
                     const docRef = doc(fsDatabase, "user", uid);
                     const docSnap = await getDoc(docRef);
@@ -134,7 +147,7 @@ export const signin = (user) => {
 
                     }
 
-                })
+               // })
 
 
 

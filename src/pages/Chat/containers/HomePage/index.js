@@ -66,11 +66,11 @@ const HomePage = (props) => {
 
     setChatStarted(true)
     setChatUser(`${user.firstName} ${user.lastName}`)
-    setUserUid(user.uid);
+    setUserUid(user.userID);
 
     console.log(user);
 
-    dispatch(getRealtimeConversations({ uid_1: auth.uid, uid_2: user.uid }));
+    dispatch(getRealtimeConversations({ uid_1: auth.uid, uid_2: user.userID }));
 
   }
 
@@ -108,7 +108,7 @@ const HomePage = (props) => {
               return (
                 <User 
                   onClick={initChat}
-                  key={user.uid} 
+                  key={user.userID}
                   user={user} 
                   />
               );

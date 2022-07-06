@@ -14,7 +14,8 @@ export const getRealtimeUsers = (uid) => {
         const unsubscribe = onSnapshot(q, (querySnapshot) =>{
             const users = [];
             querySnapshot.forEach((doc)=>{
-                if(doc.data().uid != uid){
+                const docUID = doc.data().userID
+                if(docUID != uid){
                     users.push(doc.data());
                 }
             })
