@@ -1,8 +1,9 @@
 import { userConstants } from "./constants";
-import {getFirestore, query, collection, onSnapshot, where, orderBy, addDoc} from "firebase/firestore";
+import {getFirestore, query, collection, onSnapshot, where, orderBy, addDoc, serverTimestamp} from "firebase/firestore";
+import firebase from "firebase/compat/app";
 
 
-export const getRealtimeUsers = (uid) => {
+export const getUserListRealtime = (uid) => {
 
     //console.log('uid', uid)
 
@@ -44,14 +45,14 @@ export const getRealtimeUsers = (uid) => {
 
 }
 
-export const updateMessage = (msgObj) => {
+export const storeMessages = (msgObj) => {
     return async dispatch => {
         const fsDatabase = getFirestore()
 
         await addDoc(collection(fsDatabase, "chatRooms"), {
             ...msgObj,
             isView: false,
-            createdAt: new Date()
+            createdAt: serverTimestamp()
         })
 
         /*fsDatabase.collection('chatRooms')
@@ -76,7 +77,7 @@ export const updateMessage = (msgObj) => {
     }
 }
 
-export const getRealtimeConversations = (user) => {
+export const getRealtimeMessages = (user) => {
     return async dispatch => {
         const fsDatabase = getFirestore()
         //const messageRef =;
