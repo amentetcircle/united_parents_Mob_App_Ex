@@ -40,7 +40,7 @@ import {useDispatch, useSelector} from "react-redux";
                     password
                 )
                 await createUserDocument(user, admin, birthday, university, displayName).then(() =>{
-                    dispatch(signup({email, password, firstName, lastName})) // todo: exchange with displayName
+                    dispatch(signup({email, password, displayName})) // todo: exchange with displayName
                 })
 
 

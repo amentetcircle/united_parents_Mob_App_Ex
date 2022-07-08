@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
 import { authConstanst } from './constants';
-import { getRealtimeUsers } from './user.actions';
+import { getUserListRealtime } from './user.actions';
 
 import {getFirestore, setDoc, getDoc, doc, updateDoc} from "firebase/firestore";
 import { getAuth, updateProfile, onAuthStateChanged } from 'firebase/auth';
@@ -66,8 +66,7 @@ export const signup = (user) => {
 
         // await setDoc(doc(fsDatabase, "user", auth.currentUser.uid), docData)
         const loggedInUser = {
-            firstName: user.firstName,
-            lastName: user.lastName,
+            displayName: user.displayName,
             uid: auth.currentUser.uid,
             email: user.email
         }
@@ -130,12 +129,11 @@ export const signin = (user) => {
                     const docRef = doc(fsDatabase, "user", uid);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
-                        const name = docSnap.data().displayName.split(" ") //split(" ");
-                        const firstName = name[0];
-                        const lastName = name[1];
+                        const displayName = docSnap.data().displayName; //.split(" ")
+                        //const firstName = name[0];
+                        //const lastName = name[1];
                         const loggedInUser = {
-                            firstName,
-                            lastName,
+                            displayName: displayName,
                             uid: uid,
                             email: user.email
                         }

@@ -98,17 +98,6 @@ export const getRealtimeMessages = (user) => {
                     conversations.push(doc.data())
                 }
 
-                
-
-                // if(conversations.length > 0){
-                    
-                // }else{
-                //     dispatch({
-                //         type: `${userConstants.GET_REALTIME_MESSAGES}_FAILURE`,
-                //         payload: { conversations }
-                //     })
-                // }
-
 
 
                 
@@ -124,7 +113,6 @@ export const getRealtimeMessages = (user) => {
         }
 
         )
-        //user_uid_1 == 'myid' and user_uid_2 = 'yourId' OR user_uid_1 = 'yourId' and user_uid_2 = 'myId'
 
 
     }
