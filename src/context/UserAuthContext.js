@@ -19,9 +19,9 @@ export function UserAuthContextProvider({children}) {
     const dispatch = useDispatch();
 
     function register(email, password) {
-
         return createUserWithEmailAndPassword(auth, email, password);
     }
+
     //const dispatch = useDispatch();
     function login(email, password) {
         signInWithEmailAndPassword(auth, email, password).then(async () => {
@@ -41,7 +41,6 @@ export function UserAuthContextProvider({children}) {
                     if (docSnap.data().verified) {
                         const admin = docSnap.data().admin
                         setAdmin(admin)
-                        // todo: here all other user infos (name, birthday, uni) could be set if needed
                         //dispatch(signin({ email, password }));
                         navigate("/home")
 
@@ -53,7 +52,7 @@ export function UserAuthContextProvider({children}) {
                     alert("No document for this UID");
                 }
                 //dispatch(signin({ email, password }));
-                navigate("/home")  // todo: not happy having this here, should be in Login.js / handleSubmit, but works for now
+                navigate("/home")
             } catch (e) {
                 alert(e)
             }
@@ -84,9 +83,8 @@ export function UserAuthContextProvider({children}) {
 }
 
 // Maximilian Fay & Katharina Zirkler
-export const createUserDocument = async (user, admin, firstName, lastName, birthday, university, displayName) => {
+export const createUserDocument = async (user, admin, birthday, university, displayName) => {
     if (!user) return;
-    console.log("lets go")
     try {
 
         const userRef = doc(fsDatabase, "user", user.uid);
@@ -95,9 +93,7 @@ export const createUserDocument = async (user, admin, firstName, lastName, birth
         const data = {
             email: user.email,
             userID: user.uid,
-            admin: false,
-            firstName: firstName,
-            lastName: lastName,
+            admin: admin,
             birthday: birthday,
             university: university,
             displayName: displayName,

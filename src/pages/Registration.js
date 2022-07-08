@@ -21,8 +21,6 @@ import {useDispatch, useSelector} from "react-redux";
             setPassword] = useState("")
         const [displayName, setDisplayName] = useState("")
         const [admin, setAdmin] = useState(false)
-        const [firstName, setFirstName] = useState("")
-        const [lastName, setLastName] = useState("")
         const [birthday, setBirthday] = useState("")
         const [university, setUniversity] = useState("Fra-UAS")
         const [error,
@@ -34,28 +32,26 @@ import {useDispatch, useSelector} from "react-redux";
         const handleSubmit = async (e) => {
             e.preventDefault()
 
-            alert(admin)
-            const name = `${firstName} ${lastName}`;
-            const displayName = name;
-            const userN = {firstName, lastName, email, password, birthday, university, admin, displayName}
+            // const userN = {email, password, birthday, university, admin, displayName}
             try {
                 const {user} = await createUserWithEmailAndPassword(
                     auth,
                     email,
                     password
                 )
-                await createUserDocument(user, admin, firstName, lastName, birthday, university, displayName).then(() =>{
-                    dispatch(signup({email, password, firstName, lastName}))
+                await createUserDocument(user, admin, birthday, university, displayName).then(() =>{
+                    dispatch(signup({email, password, firstName, lastName})) // todo: exchange with displayName
                 })
-                    //console.log("doc created")
 
 
 
                 if (admin) {
                     const body = email + " von der " + university +
-                        " möchte gerne Admin für United Parents werden.\nhttp://localhost:3000/verifyadmin/" + user.uid
+                        " möchte gerne Redakteur für United Parents werden.\nhttp://localhost:3000/verifyadmin/" + user.uid + "\n\n" +
+                        "For testing purposes, please copy the link into your browser while the program is still running" +
+                        " and pretend you received this e-mail as a super-admin"
 
-                    window.location.href = "mailto:mobappex.project@gmail.com?subject=Neue Anfrage Admin&body=" + encodeURIComponent(body)
+                    window.location.href = "mailto:mobappex.project@gmail.com?subject=Neue Anfrage Redakteur&body=" + encodeURIComponent(body)
                 }
                 //dispatch(signup({email, password}))
                 navigate("/")
@@ -70,8 +66,7 @@ import {useDispatch, useSelector} from "react-redux";
 
         const toggleAdmin = () => {
             setAdmin(!admin)
-            setFirstName("")
-            setLastName("")
+            setDisplayName("")
             setBirthday("")
         }
 
@@ -114,19 +109,11 @@ import {useDispatch, useSelector} from "react-redux";
                             {!admin ?
                                 <div>
                                     <Form.Group id="firstName">
-                                        <Form.Label>Vorname</Form.Label>
+                                        <Form.Label>Username</Form.Label>
                                         <Form.Control
                                             required
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}/>
-                                    </Form.Group>
-
-                                    <Form.Group id="lastName">
-                                        <Form.Label>Nachname</Form.Label>
-                                        <Form.Control
-                                            required
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}/>
+                                            value={displayName}
+                                            onChange={(e) => setDisplayName(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group id="birthday">
@@ -168,8 +155,8 @@ import {useDispatch, useSelector} from "react-redux";
                         </div>
                         :
                         <div className="w-100 text-center mt-2">
-                            Du möchtest einen Admin Account beantragen?<br></br>
-                            <Link to="/registration" onClick={() => toggleAdmin()}>Administrator werden</Link>
+                            Du möchtest einen Redakteur Account beantragen?<br></br>
+                            <Link to="/registration" onClick={() => toggleAdmin()}>Redakteur werden</Link>
                         </div>
                     }
                     <div className="w-100 text-center mt-2">
