@@ -21,7 +21,7 @@ header {
   border: 0;
   border-radius: 0 0 8px 0; /* top-left | top-right | bottom-right | bottom-left */
   box-shadow: 2px 0 2px #999999; /* offset-x | offset-y | blur-radius | color */
-  z-index: 2;
+  z-index: 2; /* Katharina Zirkler: Changed z-index for header to be on top of scrolled text */
 }
 
 /* Font Style of the header title */
@@ -509,7 +509,7 @@ a.forgot-password { font-size: 15px; }
 }
 
 
-/*-----------Editable Content----------------*/
+/*----------- Editable Content ----------------*/
 /* all changes in this section by Katharina Zirkler */
 
 .editable {
@@ -613,6 +613,9 @@ a.forgot-password { font-size: 15px; }
   text-align: left;
   z-index: 1;
 }
+
+/*----------- Admin Verification ----------------*/
+/* all changes in this section by Katharina Zirkler */
 
 .verifyadmin-button {
   margin-right: 20px;

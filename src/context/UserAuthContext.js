@@ -22,7 +22,6 @@ export function UserAuthContextProvider({children}) {
         return createUserWithEmailAndPassword(auth, email, password);
     }
 
-    //const dispatch = useDispatch();
     function login(email, password) {
         signInWithEmailAndPassword(auth, email, password).then(async () => {
             // Katharina Zirkler
@@ -31,7 +30,7 @@ export function UserAuthContextProvider({children}) {
                 const docRef = doc(fsDatabase, "user", auth.currentUser.uid)
                 const docSnap = await getDoc(docRef)
                 const uid = auth.currentUser.uid
-                await updateDoc(docRef,{
+                await updateDoc(docRef,{    // Maximilian Fay
                     isOnline: true
                 }).then(()=>{
                     dispatch(signin({ email, password, uid}))
@@ -41,7 +40,6 @@ export function UserAuthContextProvider({children}) {
                     if (docSnap.data().verified) {
                         const admin = docSnap.data().admin
                         setAdmin(admin)
-                        //dispatch(signin({ email, password }));
                         navigate("/home")
 
                     } else {
@@ -51,7 +49,6 @@ export function UserAuthContextProvider({children}) {
                 } else {
                     alert("No document for this UID");
                 }
-                //dispatch(signin({ email, password }));
                 navigate("/home")
             } catch (e) {
                 alert(e)
@@ -84,6 +81,10 @@ export function UserAuthContextProvider({children}) {
 
 // Maximilian Fay & Katharina Zirkler
 export const createUserDocument = async (user, admin, birthday, university, displayName) => {
+    /**
+     * Creates a Firestore entry for the specified parameters
+     * */
+
     if (!user) return;
     try {
 

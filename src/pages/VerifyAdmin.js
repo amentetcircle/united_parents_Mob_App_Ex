@@ -6,8 +6,16 @@ import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import {Button, Card, Form} from "react-bootstrap";
 
-// all changes on this page by Katharina Zirkler
+/**
+ * Katharina Zirkler
+ */
+
 const VerifyAdmin = () => {
+
+    /**
+     * Simple page to approve or reject an admin applicant.
+     * Access granted only to predetermined "super" admin
+     */
 
     const {uid} = useParams()
     const [adminEmail, setAdminEmail] = useState("")
@@ -17,9 +25,7 @@ const VerifyAdmin = () => {
     const [name, setName] = useState("")
     const navigate = useNavigate()
 
-    const signOut = () => {
-        auth.signOut().then(() => navigate("/"))
-    }
+    auth.signOut().then() // precaution if user is already logged in with other account
 
     getDoc(doc(fsDatabase, "user", uid)).then((snap) => {
         setAdminEmail(snap.data().email)
@@ -27,7 +33,7 @@ const VerifyAdmin = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const {supAdmin} = await signInWithEmailAndPassword(auth, supEmail, password)
+        await signInWithEmailAndPassword(auth, supEmail, password)
         try {
             const docRef = doc(fsDatabase, "user", auth.currentUser.uid)
             const docSnap = await getDoc(docRef)
@@ -38,6 +44,7 @@ const VerifyAdmin = () => {
                     setSupAdmin(true)
                 } else {
                     alert("Keine Zugriffsrechte.")
+                    await auth.signOut()
                 }
             } else {
                 alert("No document for this UID");
@@ -45,7 +52,6 @@ const VerifyAdmin = () => {
         } catch (e) {
             alert(e)
         }
-
     }
 
     const approve = async () => {
@@ -61,30 +67,18 @@ const VerifyAdmin = () => {
         } catch (e) {
             alert(e)
         }
-        signOut()
+        auth.signOut().then(() => navigate("/"))
     }
 
     const reject = async () => {
         const body = "Leider konnten dir keine Redakteurrechte gewährt werden.\n\nFalls du mit dieser Entscheidung nicht" +
-            "einverstanden bist, wende dich bitte an <...>"
+            "einverstanden bist, wende dich bitte an " + supEmail + "."
 
         window.location.href = "mailto:" + adminEmail + "?subject=United Parents Ablehnung Redakteur&body=" + encodeURIComponent(body)
-        signOut()
+        auth.signOut().then(() => navigate("/"))
     }
 
-    // const updateUserDoc = async () => {
-    //     try {
-    //         const data = {
-    //             verified: true
-    //         }
-    //         await updateDoc(doc(fsDatabase, "user", uid), data)
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    // }
-
     return (
-
         !isSupAdmin ?
             <div id="login-container">
                 <Card>
