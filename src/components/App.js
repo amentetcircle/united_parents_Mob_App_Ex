@@ -44,7 +44,7 @@ function App() {
                         <Route path="/" element={< Login/>}/>
                         <Route path="/logout" element={<Login/>}/>
                         <Route path="/registration" element={<Registration/>}/>
-                        {/*Katharina Zirkler*/}
+                        {/* Katharina Zirkler */}
                         <Route path="/verifyadmin/:uid" element={<VerifyAdmin/>}/>
                     </Routes>
 

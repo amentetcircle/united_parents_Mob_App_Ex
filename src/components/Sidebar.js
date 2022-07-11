@@ -4,6 +4,13 @@ import {auth} from "../Firebase";
 import {useUserAuth} from "../context/UserAuthContext";
 
 function Sidebar() {
+
+    /**
+     * Changes from the original regarding admin access by Katharina Zirkler.
+     * Admins have restricted access on the website, so only
+     * the "allowed" icon buttons are active
+     * */
+
     const navigate = useNavigate()
     const {isAdmin} = useUserAuth()
 
@@ -69,8 +76,8 @@ function Sidebar() {
 
                 {isAdmin ?
                     <div className="icons-container">
-                            <span className="material-icons disabled-material-button">settings</span>
-                            <p>Einstellungen</p>
+                        <span className="material-icons disabled-material-button">settings</span>
+                        <p>Einstellungen</p>
                     </div>
                     :
                     <div className="icons-container">
@@ -89,7 +96,7 @@ function Sidebar() {
                 </div>
             </div>
         </aside>
-    );
+    )
 }
 
 export default Sidebar;

@@ -5,8 +5,10 @@ import {convertFromRaw, convertToRaw, Editor, EditorState, RichUtils} from "draf
 import draftToHtml from 'draftjs-to-html';
 
 
-// EditablePage & Infobox by Katharina Zirkler
-// RichEditorExample by Tim Finmans
+/**
+ * EditablePage & Infobox by Katharina Zirkler
+ * RichEditorExample by Tim Finmans
+ * */
 
 /*
 * draft.js
@@ -32,6 +34,10 @@ import draftToHtml from 'draftjs-to-html';
 
 
 export class EditablePage extends Component {
+    /**
+     * This class serves as a wrapper for pages implementing an edit feature.
+     * Content is stored in the specified database
+     * */
 
     _listOfNodes = {}
     _listOfKeys = []
@@ -57,7 +63,6 @@ export class EditablePage extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.swapPosition = this.swapPosition.bind(this)
         this.abortChanges = this.abortChanges.bind(this)
-        // this.isAdmin = this.isAdmin.bind(this)
     }
 
     componentDidMount() {
@@ -65,16 +70,15 @@ export class EditablePage extends Component {
     }
 
     fetchContent() {
-        // fetches the current database content of this page's table
-        // if successful, updates this state with fetched data
+        /**
+         * fetches the current database content of this page's table
+         * if successful, updates this state with fetched data
+         */
         get(child(ref(rtDatabase), this.path)).then((snapshot) => {
             if (snapshot.exists()) {
                 snapshot.forEach(node => {
                     let _node = new Object(node.val())
-                    // console.log(_node)
-                    // console.log(test)
                     _node['content'] = convertFromRaw(JSON.parse(node.val()['content']))
-                    // console.log(_node)
                     this._listOfNodes[node.key] = _node
                     this._listOfKeys.push(node.key)
                 })
@@ -94,6 +98,10 @@ export class EditablePage extends Component {
     }
 
     toggleEditMode() {
+        /**
+         * Switches between the read- and editmode of the page
+         * and resets the disablement of the submit button
+         * */
         this.setState({
             editMode: !this.state.editMode,
             submitDisabled: true,
@@ -101,22 +109,27 @@ export class EditablePage extends Component {
     }
 
     handleSubmit() {
+        /**
+         * Arranges changes and deletions pre-submitted from the content boxes and
+         * stores them in the database, then updates local state
+         * */
+
         if (Object.keys(this.state.toBeWrittenToDB).length !== 0 || this.state.toBeDeletedFromDB.length !== 0) {
 
             // 1. setstate CoB w/ tbwDB
             try {
                 let tempMap = {}
                 Object.entries(this.state.contentOfBoxes).map(([key, value]) => {
-                    console.log("content", value)
+                    // console.log("content", value)
                     tempMap[key] = value
 
-                    console.log("tempmap nach content", tempMap)
+                    // console.log("tempmap nach content", tempMap)
                 })
                 Object.entries(this.state.toBeWrittenToDB).map(([key, value]) => {
-                    console.log("tobewritten", value)
+                    // console.log("tobewritten", value)
                     tempMap[key] = value
                 })
-                console.log("1. tempmap: ", tempMap)
+                // console.log("1. tempmap: ", tempMap)
 
                 // 2. delete tbd boxes in state
                 let tempMap2 = {}
@@ -125,7 +138,7 @@ export class EditablePage extends Component {
                         tempMap2[key] = value
                     }
                 })
-                console.log("2. tempmap2: ", tempMap2)
+                // console.log("2. tempmap2: ", tempMap2)
 
                 // 3. update content order in state CoB (taking out blank positions)
                 Object.entries(tempMap2)
@@ -135,22 +148,22 @@ export class EditablePage extends Component {
                             value["position"] = (index + 1)
                         }
                     })
-                console.log("3. tempmap2: ", tempMap2)
+                // console.log("3. tempmap2: ", tempMap2)
 
 
                 // 4. Converting ContentState to raw String
 
-                console.log("4. dazwischen tempmap2: ", tempMap2)
+                // console.log("4. dazwischen tempmap2: ", tempMap2)
 
                 Object.entries(tempMap2).forEach(([key, val]) => {
                     let temp = {...val}
-                    console.log("4. in tempmap2 val", val)
+                    // console.log("4. in tempmap2 val", val)
                     if ((typeof val.content !== 'string')) {
                         temp.content = JSON.stringify(convertToRaw(val.content))
                         tempMap2[key].content = temp.content
                     }
                 })
-                console.log("4. nacher tempmap2: ", tempMap2)
+                // console.log("4. nacher tempmap2: ", tempMap2)
 
                 // 5. update content in DB
                 set(ref(rtDatabase, this.path), tempMap2).then(() => {
@@ -170,6 +183,9 @@ export class EditablePage extends Component {
     }
 
     abortChanges() {
+        /**
+         * Resets pre-submitted changes and leaves edit-mode
+         * */
         this.setState({
             toBeWrittenToDB: {},
             toBeDeletedFromDB: [],
@@ -178,6 +194,12 @@ export class EditablePage extends Component {
     }
 
     checkIfNodeExists(position) {
+        /**
+         * checks if a node already exists within the database for a calculated key,
+         * if it does exist, it tries the following number to calculate a new key and tries this,
+         * until it finds an empty position in the database
+         * */
+
         return new Promise((resolve, _) => {
             let _position = position
             let _path = "content" + _position.toString()
@@ -198,7 +220,11 @@ export class EditablePage extends Component {
     }
 
     addToDB() {
-        // submits the content of newly added content boxes to the database
+        /**
+         * submits the content of a newly added content boxes to the database
+         * with exemplary text that already has an editorstate-like format
+         * */
+
 
         try {
             let _position = this.state.listOfKeys.length + 1
@@ -210,7 +236,7 @@ export class EditablePage extends Component {
                     "content": '{"blocks":[{"key":"' + _key1 + '","text":"Hier kannst du deinen Inhalt einfügen' +
                         ' und anpassen. Abhängig davon ob du einen Titel vergibst oder nicht, wird das Logo der' +
                         ' Fra-UAS automatisch eingefügt.","type":"unstyled","depth":0,"inlineStyleRanges":[],' +
-                        '"entityRanges":[],"data":{}},{"key":"' + _key2 + '","text":"Falls du dieseBox doch nicht' +
+                        '"entityRanges":[],"data":{}},{"key":"' + _key2 + '","text":"Falls du diese Box doch nicht' +
                         ' benötigst, kannst du sie mit dem Mülleimer wieder zum löschen freigeben.","type":"unstyled",' +
                         '"depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
                     "title": "Titel",
@@ -236,6 +262,11 @@ export class EditablePage extends Component {
     }
 
     swapPosition(upperKey) {
+        /**
+         * Switches the position of the content boxes above and below the triggering button
+         * and stores those changes in the database
+         * */
+
         try {
             let tempList = Object.entries(this.state.contentOfBoxes).map((entry) => entry)
             tempList.sort((a, b) => a[1]["position"] - b[1]["position"])
@@ -250,9 +281,9 @@ export class EditablePage extends Component {
             let tempStateLocal = {}
             let tempStateDB = {}
             tempList.forEach(([key, val]) => {
-                console.log(val.content)
+                // console.log(val.content)
                 let temp = {...val}
-                console.log(temp.content)
+                // console.log(temp.content)
                 tempStateLocal[key] = temp
             })
             tempList.forEach(([key, val]) => {
@@ -261,8 +292,8 @@ export class EditablePage extends Component {
                 tempStateDB[key] = val
                 tempStateDB[key].content = temp.content
             })
-            console.log("tempDB: ", tempStateDB)
-            console.log("tempLocal: ", tempStateLocal)
+            // console.log("tempDB: ", tempStateDB)
+            // console.log("tempLocal: ", tempStateLocal)
             update(ref(rtDatabase, this.path), tempStateDB).then(r => {
                 this.setState({
                     contentOfBoxes: tempStateLocal
@@ -276,7 +307,9 @@ export class EditablePage extends Component {
     }
 
     receiveChildData(node) {
-        // updates this state with data prepared by the content boxes
+        /**
+         *  Updates this Component's state with data prepared by the content boxes
+         *  */
         try {
             let _node = Object.entries(node)[0]
             let _path = _node[0]
@@ -312,6 +345,8 @@ export class EditablePage extends Component {
 
         const editToggled = this.state.editMode
         let listOfInfoboxes = []
+        // prepares a list alternating between an Infobox element and an icon button to
+        // switch box positions, ended by an icon button to add a new Infobox element
         Object.entries(this.state.contentOfBoxes)
             .sort((a, b) => a[1]["position"] - b[1]["position"])
             .forEach(([key, value], index, array) => {
@@ -397,6 +432,11 @@ export class EditablePage extends Component {
 
 export class InfoBox extends Component {
 
+    /**
+     * Depending on a boolean regarding the edit mode of the base page, this class is responsible
+     * for either showing the desired text as read-only or several input possibilities to manipulate the content.
+     * */
+
     constructor(props) {
         super(props);
         this.state = {
@@ -443,8 +483,10 @@ export class InfoBox extends Component {
     }
 
     sendDataToParent() {
-        // passes the data that is to be submitted
-        // to the database up to the parent
+        /**
+         * passes the data that is to be submitted
+         * to the database up to the parent
+         * */
 
         try {
             let node = {
@@ -459,6 +501,9 @@ export class InfoBox extends Component {
     }
 
     deleteThis() {
+        /**
+         * Changes the state to be recognized as to be deleted
+         * */
         this.setState({
             _content: "",
             _title: "",
@@ -469,6 +514,11 @@ export class InfoBox extends Component {
     }
 
     handleInputChange(event) {
+        /**
+         * default input handler
+         * taken from https://reactjs.org/docs/forms.html - Handling Multiple Inputs
+         * */
+
         event.preventDefault()
         const target = event.target;
         const value = target.value;
@@ -480,6 +530,10 @@ export class InfoBox extends Component {
     }
 
     receiveEditorState(es) {
+        /**
+         * Changes local state from editorstate passed by RichEditor
+         * */
+
         this.setState({
             editorstate: es,
             _content: JSON.stringify(convertToRaw(es.getCurrentContent())),
@@ -487,9 +541,11 @@ export class InfoBox extends Component {
     }
 
     convertToHTML() {
-        // todo: check ungewollte html-tags
-
+        /**
+         * Converts ContentState Object to HTML
+         * */
         try {
+            console.log(draftToHtml(convertToRaw(this.props.content)))
 
             return <div dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.props.content))}}></div>
         } catch (e) {
@@ -529,11 +585,6 @@ export class InfoBox extends Component {
                             </input>
                         </div>
                         <div>
-                            {/*<textarea className="editable-textarea"
-                                  name="_content"
-                                  value={this.state._content}
-                                  onChange={this.handleInputChange}>
-                                </textarea>*/}
                             <RichEditor
                                 value={this.props.content}
                                 submit={this.receiveEditorState}>
@@ -571,50 +622,6 @@ class RichEditor extends React.Component {
     constructor(props) {
         super(props);
         try {
-            // const test = '{' +
-            //     '      "entityMap": {},' +
-            //     '      "blocks": [' +
-            //     '        {' +
-            //     '          "key": "e4brl",' +
-            //     '          "text": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",' +
-            //     '          "type": "unstyled",' +
-            //     '          "depth": 0,' +
-            //     '          "inlineStyleRanges": [' +
-            //     '            {' +
-            //     '              "offset": 0,' +
-            //     '              "length": 11,' +
-            //     '              "style": "BOLD"' +
-            //     '            },' +
-            //     '            {' +
-            //     '              "offset": 28,' +
-            //     '              "length": 29,' +
-            //     '              "style": "BOLD"' +
-            //     '            },' +
-            //     '            {' +
-            //     '              "offset": 12,' +
-            //     '              "length": 15,' +
-            //     '              "style": "ITALIC"' +
-            //     '            },' +
-            //     '            {' +
-            //     '              "offset": 28,' +
-            //     '              "length": 28,' +
-            //     '              "style": "ITALIC"' +
-            //     '            }' +
-            //     '          ],' +
-            //     '          "entityRanges": [],' +
-            //     '          "data": {}' +
-            //     '        },' +
-            //     '        {' +
-            //     '          "key": "3bflg",' +
-            //     '          "text": "Aenean commodo ligula eget dolor.",' +
-            //     '          "type": "unstyled",' +
-            //     '          "depth": 0,' +
-            //     '          "inlineStyleRanges": [],' +
-            //     '          "entityRanges": [],' +
-            //     '          "data": {}' +
-            //     '        }' +
-            //     '      ]' +
-            //     '    }'
 
             console.log(props.value)
             this.state = {
@@ -679,7 +686,7 @@ class RichEditor extends React.Component {
     // main URL part is from this website https://codesandbox.io/s/nz8fj?file=/src/index.js
     onURLChange = (e) => this.setState({urlValue: e.target.value});
 
-    promptForLink = (e) =>{
+    promptForLink = (e) => {
         e.preventDefault();
         const {editorState} = this.state;
         const selection = editorState.getSelection();
@@ -716,7 +723,7 @@ class RichEditor extends React.Component {
         );
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
-        if(urlValue === ""){
+        if (urlValue === "") {
             this.refs.editor.focus()
             this.setState({
                 showURLInput: false,
@@ -726,11 +733,11 @@ class RichEditor extends React.Component {
 
         // Apply entity
         let nextEditorState = EditorState.set(editorState,
-            { currentContent: contentStateWithEntity }
+            {currentContent: contentStateWithEntity}
         );
 
         // Apply selection
-        nextEditorState = RichUtils.toggleLink( nextEditorState,
+        nextEditorState = RichUtils.toggleLink(nextEditorState,
             nextEditorState.getSelection(), entityKey
         );
 
@@ -743,7 +750,11 @@ class RichEditor extends React.Component {
         });
     }
 
-    onLinkInputKeyDown = (e) => { if (e.which === 13) { this.confirmLink(e); } }
+    onLinkInputKeyDown = (e) => {
+        if (e.which === 13) {
+            this.confirmLink(e);
+        }
+    }
 
     removeLink = (e) => {
         e.preventDefault();
@@ -779,11 +790,10 @@ class RichEditor extends React.Component {
                         value={this.state.urlValue}
                         onKeyDown={this.onLinkInputKeyDown}
                     />
-                    <button onMouseDown={this.confirmLink}> Confirm </button>
+                    <button onMouseDown={this.confirmLink}> Confirm</button>
                 </div>;
         }
 
-        className += ' editor-content'
         return (
             <div className="RichEditor-root">
                 <BlockStyleControls
@@ -795,13 +805,13 @@ class RichEditor extends React.Component {
                     onToggle={this.toggleInlineStyle}
                 />
                 <span
-                    className = 'RichEditor-styleButton'
+                    className='RichEditor-styleButton'
                     onMouseDown={this.promptForLink}
                     style={{marginRight: 10}}>
                     Add Link
                 </span>
                 <span
-                    className = 'RichEditor-styleButton'
+                    className='RichEditor-styleButton'
                     onMouseDown={this.removeLink}>
                     Remove Link
                 </span>

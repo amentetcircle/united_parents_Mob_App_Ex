@@ -1,14 +1,8 @@
 import React, {useState} from "react";
 import {Alert, Button, Card, Form} from 'react-bootstrap'
-import {Link, Navigate, useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {useUserAuth} from "../context/UserAuthContext"
-import {useDispatch, useSelector} from "react-redux";
-import {signin} from "./Chat/actions";
 
-/**
- * TODO:
- * implementation of FORGOT PASSWORD function
- */
 
 const Login = (props) => {
     const [email, setEmail] = useState("");
@@ -16,30 +10,14 @@ const Login = (props) => {
     const {login} = useUserAuth();
     const [error, setError] = useState("");
 
-    //const auth = useSelector(state => state.auth);
-    //const navigate = useNavigate();
-    //const dispatch = useDispatch();
-
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError("")
 
             await login(email, password)
-            //dispatch(signin({ email, password }))
-            //navigate("/home")
-
-            //dispatch(signin({ email, password }));
-            //navigate("/home")
-
-
 
     }
-
-
-   /* if(auth.authenticated){
-        return <Navigate to={`/Chat/ChatPage`} />
-    }*/
 
     return (
         <div id="login-container">
