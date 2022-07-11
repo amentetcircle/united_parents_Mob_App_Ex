@@ -5,7 +5,7 @@ import { signin, isLoggedInUser } from '../../actions';
 import './style.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {Navigate, Route} from 'react-router-dom';
-import HomePage from "../HomePage";
+import ChatPage from "../ChatPage";
 
 /**
 * @author
@@ -50,7 +50,7 @@ const LoginPage = (props) => {
 
 
   if(auth.authenticated){
-    return <Route path="/" component={HomePage}/>
+    return <Route path="/" component={ChatPage}/>
     //<Navigate to={`/`} />
   }
 
