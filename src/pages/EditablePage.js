@@ -616,7 +616,7 @@ export class InfoBox extends Component {
     }
 }
 
-// editor similar to https://codepen.io/AvanthikaMeenakshi/pen/MWWpOJz
+// editor inspired by https://codepen.io/AvanthikaMeenakshi/pen/MWWpOJz
 class RichEditor extends React.Component {
 
     constructor(props) {
