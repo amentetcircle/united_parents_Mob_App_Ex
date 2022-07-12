@@ -1,11 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import './style.css';
 import Layout from '../../components/Layout';
 import { useDispatch, useSelector } from 'react-redux';
 import {getRealtimeMessages, getUserListRealtime, storeMessages} from '../../actions';
 import Picker from "emoji-picker-react";
-import {getMessage} from "@testing-library/jest-dom/dist/utils";
-import ReactScrollableFeed from "react-scrollable-feed";
 
 const User = (props) => {
 
