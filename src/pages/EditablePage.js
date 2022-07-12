@@ -7,7 +7,7 @@ import draftToHtml from 'draftjs-to-html';
 
 /**
  * EditablePage & Infobox by Katharina Zirkler
- * RichEditorExample by Tim Finmans
+ * RichEditor by Tim Finmans
  * */
 
 /*

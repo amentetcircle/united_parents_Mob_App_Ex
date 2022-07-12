@@ -88,8 +88,9 @@ const ChatPage = (props) => {
                 });
 
         }
+
         //dummy.current?.scrollIntoView({behavior: "smooth"})
-        //document.getElementById("input").value = ""
+        document.getElementById("input").value = ""
 
     }
 
@@ -141,7 +142,7 @@ const ChatPage = (props) => {
                                 <img className={con.user_uid_1 === auth.uid ? "round-image-for-chat receiver-image" : "round-image-for-chat"} src="https://i.pravatar.cc/200"></img>
                                 <div className={con.user_uid_1 === auth.uid ? "message sender" : "message" }>
                                     <p className="message-text" >{con.message}</p>
-                                    <p className="timestamp-chat">{new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(con.createdAt)}</p>
+                                    <p className="timestamp-chat">{new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(con.createdAt)}</p>
 
                                 </div>
                             </div>)
