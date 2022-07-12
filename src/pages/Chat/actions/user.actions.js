@@ -25,18 +25,6 @@ export const getUserListRealtime = (uid) => {
                 payload: { users }
             });
         })
-        /*
-        const unsubscribe = fsDatabase.collection("user")
-        //.where("uid", "!=", uid)
-        .onSnapshot((querySnapshot) => {
-            const users = [];
-            querySnapshot.forEach(function(doc) {
-                if(doc.data().uid != uid){
-                    users.push(doc.data());
-                }
-            });*/
-            //console.log(users);
-
 
 
         return unsubscribe;
@@ -98,9 +86,6 @@ export const getRealtimeMessages = (user) => {
                     conversations.push(doc.data())
                 }
 
-
-
-                
             });
 
             dispatch({
