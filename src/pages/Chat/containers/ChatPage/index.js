@@ -26,6 +26,7 @@ const ChatPage = (props) => {
     const dispatch = useDispatch();
     const auth = useSelector(state => state.auth);
     const user = useSelector(state => state.user);
+
     const [chatStarted, setChatStarted] = useState(false);
     const [chatUser, setChatUser] = useState('');
     const [message, setMessage] = useState('');
@@ -50,20 +51,20 @@ const ChatPage = (props) => {
     }, []);
 
 
-    //componentWillUnmount
-    useEffect(() => {
+
+    /*useEffect(() => {
         return () => {
 
             unsubscribe.then(f => f()).catch(error => console.log(error));
 
         }
-    }, []);
+    }, []);*/
 
 
     const initChat = (user) => {
         dummy.current?.scrollIntoView({behavior: "smooth"})
         setChatStarted(true)
-        setChatUser(`${user.firstName} ${user.lastName}`)
+        setChatUser(`${user.displayName}`)
         setUserUid(user.userID);
 
         console.log(user);
@@ -86,7 +87,6 @@ const ChatPage = (props) => {
                 .then(() => {
                     setMessage('')
                 });
-
         }
 
         //dummy.current?.scrollIntoView({behavior: "smooth"})

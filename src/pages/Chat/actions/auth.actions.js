@@ -189,7 +189,7 @@ export const signin = (user) => {
     }
 }
 
-export const isLoggedInUser = () => {
+/*export const isLoggedInUser = () => {
     return async dispatch => {
 
         const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
@@ -208,7 +208,7 @@ export const isLoggedInUser = () => {
 
 
     }
-}
+}*/
 
 export const logout = (uid) => {
     return async dispatch => {
