@@ -3,9 +3,7 @@ import { authConstanst } from "../actions/constants"
 const initState = {
     displayName: '',
     email: '',
-    authenticating: false,
-    authenticated: false,
-    error: null
+
 }
 
 export default (state = initState, action) => {
@@ -17,23 +15,20 @@ export default (state = initState, action) => {
         case `${authConstanst.USER_LOGIN}_REQUEST`:
             state = {
                 ...state,
-                authenticating: true
+
             }
             break;
         case `${authConstanst.USER_LOGIN}_SUCCESS`:
             state = {
                 ...state,
                 ...action.payload.user,
-                authenticated: true,
-                authenticating: false
+
             }
             break;
         case `${authConstanst.USER_LOGIN}_FAILURE`:
             state = {
                 ...state,
-                authenticated: false,
-                authenticating: false,
-                error: action.payload.error
+
             }
             break;
         case `${authConstanst.USER_LOGOUT}_REQUEST`:
@@ -43,12 +38,7 @@ export default (state = initState, action) => {
                 ...initState
             }
             break;
-        case `${authConstanst.USER_LOGOUT}_FAILURE`:
-            state = {
-                ...state,
-                error: action.payload.error
-            }
-            break;
+
 
     }
 

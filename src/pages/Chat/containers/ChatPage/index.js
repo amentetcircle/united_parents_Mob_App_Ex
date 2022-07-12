@@ -52,15 +52,6 @@ const ChatPage = (props) => {
 
 
 
-    /*useEffect(() => {
-        return () => {
-
-            unsubscribe.then(f => f()).catch(error => console.log(error));
-
-        }
-    }, []);*/
-
-
     const initChat = (user) => {
         dummy.current?.scrollIntoView({behavior: "smooth"})
         setChatStarted(true)
