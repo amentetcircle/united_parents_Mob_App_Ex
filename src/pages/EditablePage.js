@@ -390,7 +390,7 @@ export class EditablePage extends Component {
                 <div>
                     {this.state.userIsAdmin ?
                         <button className="editable-material-button edit icons-container" onClick={() => {
-                            if (editToggled) {
+                            if (editToggled && (Object.keys(this.state.toBeWrittenToDB).length !== 0 || this.state.toBeDeletedFromDB.length !== 0)) {
                                 if (window.confirm("Änderungen speichern?")) {
                                     this.handleSubmit()
                                 } else {
@@ -545,6 +545,7 @@ export class InfoBox extends Component {
          * Converts ContentState Object to HTML
          * */
         try {
+            console.log(convertToRaw(this.props.content))
             console.log(draftToHtml(convertToRaw(this.props.content)))
 
             return <div dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.props.content))}}></div>
@@ -849,6 +850,8 @@ function getBlockStyle(block) {
     switch (block.getType()) {
         case 'blockquote':
             return 'RichEditor-blockquote';
+        case 'code':
+            return 'public-DraftStyleDefault-pre'
         default:
             return null;
     }
@@ -887,7 +890,7 @@ const BLOCK_TYPES = [
     {label: 'Blockquote', style: 'blockquote'},
     {label: 'UL', style: 'unordered-list-item'},
     {label: 'OL', style: 'ordered-list-item'},
-    {label: 'Code Block', style: 'code-block'},
+    {label: 'Code', style: 'code'},
 ];
 
 const BlockStyleControls = (props) => {
