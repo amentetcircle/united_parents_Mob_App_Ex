@@ -43,24 +43,7 @@ export const storeMessages = (msgObj) => {
             createdAt: serverTimestamp()
         })
 
-        /*fsDatabase.collection('chatRooms')
-        .add({
-            ...msgObj,
-            isView: false,
-            createdAt: new Date()
-        })
-        .then((data) => {
-            console.log(data)
-            //success
-            // dispatch({
-            //     type: userConstants.GET_REALTIME_MESSAGES,
-            // })
 
-
-        })
-        .catch(error => {
-            console.log(error)
-        });*/
 
     }
 }

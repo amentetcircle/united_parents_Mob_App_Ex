@@ -35,6 +35,7 @@ const ChatPage = (props) => {
     let unsubscribe;
     const dummy = useRef(null);
 
+    //load all available user
     useEffect(() => {
 
         unsubscribe = dispatch(getUserListRealtime(auth.uid))
@@ -46,14 +47,12 @@ const ChatPage = (props) => {
             })
 
 
-
-
     }, []);
 
 
-
+    //fetch all messages based on the clicked user
     const initChat = (user) => {
-        dummy.current?.scrollIntoView({behavior: "smooth"})
+
         setChatStarted(true)
         setChatUser(`${user.displayName}`)
         setUserUid(user.userID);
@@ -63,7 +62,7 @@ const ChatPage = (props) => {
         dispatch(getRealtimeMessages({ uid_1: auth.uid, uid_2: user.userID }));
 
     }
-
+    //store messages
     const submitMessage = (e) => {
         e.preventDefault();
         const msgObj = {
@@ -72,16 +71,12 @@ const ChatPage = (props) => {
             message
         }
 
-
         if(message !== ""){
             dispatch(storeMessages(msgObj))
                 .then(() => {
                     setMessage('')
                 });
         }
-
-        //dummy.current?.scrollIntoView({behavior: "smooth"})
-        document.getElementById("input").value = ""
 
     }
 
